@@ -79,13 +79,13 @@ for x in range(0,len(liste_profs)):
         lecteur = csv.reader(eleves_classe)
         y=0
         for eleve in lecteur:
-            if y >= 1:
-                if eleve[2] == 'F' and eleve[3] == liste_profs[x]:
+            if y >= 1 and eleve[3] == liste_profs[x]:
+                if eleve[2] == 'F':
                     liste_filles.append(eleve)
-                elif eleve[2] == 'G' and eleve[3] == liste_profs[x]:
+                elif eleve[2] == 'G':
                     liste_garcons.append(eleve)
-            else:
-                "erreur de test prof"
+                else:
+                    print("Erreur de renseignement du sexe de l'élève")
             y=y+1
 
     random.shuffle(liste_filles)
