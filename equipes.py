@@ -1,5 +1,3 @@
-from os import X_OK
-import sqlite3
 import random
 import csv
 
@@ -52,13 +50,8 @@ def attribuer_joueur(liste_joueurs):
     Nécessite la variable globale "toutes_eq[]" initialisée au préalable.'''
     for joueur in liste_joueurs:
         index_eq = index_plus_petite_equipe(toutes_eq) 
-        # les joueurs récupérés dans la liste sont des tuples, 
-        # on ne peut pas concaténer des str avec eux
-        # donc un crée une liste qui contient les deux informations (infos joueurs + équipe attribuée)
         numero_equipe = (f'équipe {index_eq+1}') # on évite une "équipe 0"
         joueur.append(numero_equipe)
-        # joueur_de_liste = []
-        # joueur_de_liste.append(joueur+numero_equipe)
         toutes_eq[index_eq].append(joueur)
     return None
 
@@ -67,7 +60,7 @@ def attribuer_joueur(liste_joueurs):
 liste_eleves = []
 liste_profs = []
 
-with open("liste_eleves_db.csv",newline='') as db_eleves:
+with open("liste_eleves.csv",newline='') as db_eleves:
     lecteur = csv.reader(db_eleves)
     x=0 # on passe l'en-tête du fichier csv
     for ligne in lecteur:
@@ -77,21 +70,12 @@ with open("liste_eleves_db.csv",newline='') as db_eleves:
         x=x+1
     liste_profs = list(set(liste_profs)) # on supprime les doublons de la liste des profs
 
-    print(liste_profs)
-# connection = sqlite3.connect('eleves_eps.db')
-# curseur = connection.cursor()
-
-# #On récupère tous les professeurs de la db, sans répétition
-# curseur.execute('SELECT prof from eleves')
-# liste_profs = curseur.fetchall()
-# liste_profs_uniques = list(dict.fromkeys(liste_profs))
-
 # Pour chaque classe, on crée deux listes (filles et garçons)
 # sur lesquelles on effectue la fonction "attribuer_joueurs"
 for x in range(0,len(liste_profs)):
     liste_filles = []
     liste_garcons = []
-    with open('liste_eleves_db.csv', newline='') as eleves_classe:
+    with open('liste_eleves.csv', newline='') as eleves_classe:
         lecteur = csv.reader(eleves_classe)
         y=0
         for eleve in lecteur:
@@ -104,16 +88,12 @@ for x in range(0,len(liste_profs)):
                 "erreur de test prof"
             y=y+1
 
-
-
     random.shuffle(liste_filles)
     random.shuffle(liste_garcons)
     attribuer_joueur(liste_filles)
     attribuer_joueur(liste_garcons)
 
-for equipe in toutes_eq:
-    for eleve in equipe:
-        print(eleve)
+
 
 with open('liste_equipes.csv', 'w', newline='',encoding='utf-8') as equipes_attribuees:
     scripteur = csv.writer(equipes_attribuees)
@@ -121,15 +101,3 @@ with open('liste_equipes.csv', 'w', newline='',encoding='utf-8') as equipes_attr
     for equipe in toutes_eq:
         for eleve in equipe:
             scripteur.writerow([eleve[0],eleve[1],couleur_equipe(eleve[4]),eleve[3]])
-# #on supprime les données précédentes de la table
-# curseur.execute("DELETE FROM joueurs_par_equipes")
-
-# # #on met à jour la bonne table avec les équipes
-# for equipe in toutes_eq:
-#     for joueur in equipe:
-#         for detail in joueur:
-#             curseur.execute("INSERT INTO joueurs_par_equipes VALUES ('"+ detail[0]+ "', '"+ detail[1]+ "', '"+ couleur_equipe(detail[4]) +  "', '"+ detail[3]+"')")
-
-
-# connection.commit()
-# connection.close()
