@@ -1,73 +1,73 @@
 nom,prenom,equipe,prof
-DIALLO,Coumba,jaune,MAUGER
+TAHA,Shayma,jaune,MAUGER
 MARZOUGUI,Kenza,jaune,MAUGER
-CRUSOL,Nolan,jaune,MAUGER
-FONTAINE,Adem,jaune,MAUGER
-BABA,Alyssa,jaune,VINSON
-TEKFI,Na’ela,jaune,VINSON
+DERVIEUX,Waris,jaune,MAUGER
+LEGRAND,Raphaël,jaune,MAUGER
+BEDOK,Elinor,jaune,VINSON
+VALDES DE LA CRUZ,Alizée,jaune,VINSON
 KOUHOUCH,Nassim,jaune,VINSON
-BATMAN CHERIFI,Enzo,jaune,VINSON
-MOHAMMED-SAID,Chaïma,jaune,ROCHER
-KET BANDARENKA,Alycia,jaune,ROCHER
-KHLEF,Jassime,jaune,ROCHER
-LAFIFI,Saïd,jaune,ROCHER
-BELHADJ,Jasmine,rouge,MAUGER
+NECER,Rayan,jaune,VINSON
+BIZRICHE,Hanna,jaune,ROCHER
+BOUCETTA,Alicia,jaune,ROCHER
+AOUAMRI,Hamza,jaune,ROCHER
+HORVAT,Marius,jaune,ROCHER
+FEKRANE,Joumana,rouge,MAUGER
 SILVY,Manon,rouge,MAUGER
-VERDET,Lyssandro,rouge,MAUGER
-MEHENTEL,Mohamed,rouge,MAUGER
+FONTAINE,Adem,rouge,MAUGER
+HAIDAR-BONHOMME,Kaïs,rouge,MAUGER
 AIT MATEN,Célina,rouge,VINSON
 REDOUANE,Jade,rouge,VINSON
+KEDADRA,Kaïs,rouge,VINSON
 AYARI,Jibril,rouge,VINSON
-BOUDOUKHA,Oubay,rouge,VINSON
-BIZRICHE,Hanna,rouge,ROCHER
-OUN-AQQA,Lina,rouge,ROCHER
-BELHARETH,Ahmed,rouge,ROCHER
-MADANI TIDAS,Khalys,rouge,ROCHER
-BEN HALIMA,Joayna,bleu,MAUGER
-FEKRANE,Joumana,bleu,MAUGER
-HAIDAR-BONHOMME,Kaïs,bleu,MAUGER
-LEGRAND,Raphaël,bleu,MAUGER
-DELLOUL,Ines,bleu,VINSON
-SOUILAH,Dina,bleu,VINSON
-BEDOK,Dovan,bleu,VINSON
-KEDADRA,Kaïs,bleu,VINSON
-BENDIFFALAH,Imane,bleu,ROCHER
-CHELALI,Lina,bleu,ROCHER
+BENGUERAR,Meissa,rouge,ROCHER
+MOHAMMED-SAID,Chaïma,rouge,ROCHER
+LAHMICI,Ayoub,rouge,ROCHER
+LAFIFI,Saïd,rouge,ROCHER
+UYUMAS,Ayline,bleu,MAUGER
+DIALLO,Coumba,bleu,MAUGER
+VIALLE,Louan,bleu,MAUGER
+MARTI,Eliott,bleu,MAUGER
+EL YACOUBI,Abir,bleu,VINSON
+BABA,Alyssa,bleu,VINSON
+BOURCHADA,Ilyes,bleu,VINSON
+BOUDOUKHA,Oubay,bleu,VINSON
+KET BANDARENKA,Alycia,bleu,ROCHER
+LENEPVEU,Keith,bleu,ROCHER
+DIABY,Salim,bleu,ROCHER
 MOREAU,Maxence,bleu,ROCHER
-ABASSI,Yassine,bleu,ROCHER
-UYUMAS,Ayline,vert,MAUGER
-DELUY,Zélie,vert,MAUGER
+BEN HALIMA,Joayna,vert,MAUGER
+BELHADJ,Jasmine,vert,MAUGER
+CRUSOL,Nolan,vert,MAUGER
 BALME,Abdelatif,vert,MAUGER
-SAIFI,Selim,vert,MAUGER
-DOUAG,Hanna,vert,VINSON
-NECER,Rayan,vert,VINSON
-SELMI,Bilal,vert,VINSON
-SMARA,Jalil,vert,VINSON
-BENGUERAR,Meissa,vert,ROCHER
-LENEPVEU,Keith,vert,ROCHER
-OUACHANI,Imran,vert,ROCHER
-AOUAMRI,Hamza,vert,ROCHER
-TAHA,Shayma,violet,MAUGER
+TEKFI,Na’ela,vert,VINSON
+BATMAN CHERIFI,Enzo,vert,VINSON
+BEDOK,Dovan,vert,VINSON
+NGAMBIA NGASSA,Pierre-François,vert,VINSON
+RECHAIDIA,Noor,vert,ROCHER
+AIT YAKOUB,Marwa,vert,ROCHER
+MADANI TIDAS,Khalys,vert,ROCHER
+BELHARETH,Ahmed,vert,ROCHER
 ZHANG,Lucie,violet,MAUGER
-VIALLE,Louan,violet,MAUGER
-BEDOK,Elinor,violet,VINSON
+KEBE,Binta,violet,MAUGER
+MEHENTEL,Mohamed,violet,MAUGER
+DOUAG,Hanna,violet,VINSON
 EL AYARI,Arwa,violet,VINSON
-BUXERAUD,Edgar,violet,VINSON
-BOURCHADA,Ilyes,violet,VINSON
+SMARA,Jalil,violet,VINSON
 JULIEN,Jordan,violet,VINSON
-AIT YAKOUB,Marwa,violet,ROCHER
-HORVAT,Marius,violet,ROCHER
-CLAIRET-LOQUET,Eywenn,violet,ROCHER
-LAHMICI,Ayoub,violet,ROCHER
-KEBE,Binta,orange,MAUGER
-DERVIEUX,Waris,orange,MAUGER
-MARTI,Eliott,orange,MAUGER
-VALDES DE LA CRUZ,Alizée,orange,VINSON
-EL YACOUBI,Abir,orange,VINSON
-IBOUROI,Yassine,orange,VINSON
-NGAMBIA NGASSA,Pierre-François,orange,VINSON
-RECHAIDIA,Noor,orange,ROCHER
-BOUCETTA,Alicia,orange,ROCHER
-DIABY,Salim,orange,ROCHER
+IBOUROI,Yassine,violet,VINSON
+BENDIFFALAH,Imane,violet,ROCHER
+OUACHANI,Imran,violet,ROCHER
+LEBRE,Jules,violet,ROCHER
+KHLEF,Jassime,violet,ROCHER
+DELUY,Zélie,orange,MAUGER
+VERDET,Lyssandro,orange,MAUGER
+SAIFI,Selim,orange,MAUGER
+DELLOUL,Ines,orange,VINSON
+SOUILAH,Dina,orange,VINSON
+BUXERAUD,Edgar,orange,VINSON
+SELMI,Bilal,orange,VINSON
+CHELALI,Lina,orange,ROCHER
+OUN-AQQA,Lina,orange,ROCHER
+CLAIRET-LOQUET,Eywenn,orange,ROCHER
+ABASSI,Yassine,orange,ROCHER
 FETAHOVIC,Aïd,orange,ROCHER
-LEBRE,Jules,orange,ROCHER
