@@ -12,9 +12,6 @@ fichier_eleves = "liste_eleves.csv"
 # liste globale de toutes les équipes
 toutes_eq = []
 
-liste_profs = []
-liste_eleves = []
-
 # on initialise la liste pour que la fonction index_plus_petite_equipe fonctionne
 for i in range(0,nb_equipes):
     equipe = []
@@ -54,27 +51,29 @@ def attribuer_joueur(liste_joueurs):
         toutes_eq[index_eq].append(joueur)
     return None
 
-def programme_principal(fichier_eleves_csv,profs_liste):
+def programme_principal(fichier_eleves_csv):
     with open(fichier_eleves_csv,newline='') as db_eleves:
         lecteur = csv.reader(db_eleves,delimiter=';')
+        liste_profs = []
+        liste_eleves = []
         x=0 # on passe l'en-tête du fichier csv
         for ligne in lecteur:
             if x>=1:
-                profs_liste.append(ligne[3])
+                liste_profs.append(ligne[3])
                 liste_eleves.append(ligne)
             x=x+1
-        profs_liste = list(set(profs_liste)) # on supprime les doublons de la liste des profs
+        liste_profs = list(set(liste_profs)) # on supprime les doublons de la liste des profs
 
         # Pour chaque classe, on crée deux listes (filles et garçons)
         # sur lesquelles on effectue la fonction "attribuer_joueurs"
-        for x in range(0,len(profs_liste)):
+        for x in range(0,len(liste_profs)):
             liste_filles = []
             liste_garcons = []
             with open(fichier_eleves_csv, newline='') as eleves_classe:
                 lecteur = csv.reader(eleves_classe, delimiter=';')
                 y=0
                 for eleve in lecteur:
-                    if y >= 1 and eleve[3] == profs_liste[x]:
+                    if y >= 1 and eleve[3] == liste_profs[x]:
                         if eleve[2] == 'F':
                             liste_filles.append(eleve)
                         elif eleve[2] in ['G','M']:
@@ -118,6 +117,6 @@ else:
         print("Les équipes n'ont pas été réparties.\nFin du programme.")
     else:
         fichier_eleves = f'{liste_fichiers_csv[0][2:]}'
-        programme_principal(fichier_eleves, liste_profs)
+        programme_principal(fichier_eleves)
         print("Répartition des équipes effectuée.\nVous la trouverez dans le dossier \"tirage_equipes\"")
         input("Appuyez sur Entrée pour quitter le programme.")
