@@ -6,6 +6,9 @@ from glob import glob
 # liste globale de toutes les équipes
 toutes_eq = []
 
+# liste éventuelle des élèves à enlever du tirage
+liste_eleves_dispenses = []
+
 def index_plus_petite_equipe(liste_equipes) :
     ''' Retourne l'index de l'équipe comptant le moins de joueurs '''
     tailles_equipes = []
@@ -18,28 +21,99 @@ def index_plus_petite_equipe(liste_equipes) :
 
 def couleur_equipe(numero_equipe):
     liste_couleurs = ['jaune','rouge','bleu','vert','violet','orange','blanc','noir']
-    liste_numeros = []
-    y=1 # il n'y a pas d'équipe 0, on l'a évité dans le code
-    for x in range(0,len(liste_couleurs)):
-        liste_numeros.append(y)
-        y=y+1
+    # il n'y a pas d'équipe 0, on l'a évité dans le code
+    liste_numeros = [i for i in range(1,(len(liste_couleurs)+1))]
     if int(numero_equipe[6:]) in liste_numeros:
         numero_equipe = liste_couleurs[int(numero_equipe[6:])-1]
-    else:
-        numero_equipe = numero_equipe
     return numero_equipe
 
-def ajouter_eleve_dispense(fichier_eleves, liste_eleves_dispenses):
-    with open(fichier_eleves,newline='') as db_eleves:
-        lecteur = csv.reader(db_eleves,delimiter=';')
-        prenom_eleve = input("Veuillez entrer le prénom (ou les premières lettres du prénom) d'un élève à dispenser du tirage : ")
-        while not prenom_eleve.isalpha():
-            prenom_eleve = input("Veuillez ne pas entrer de chiffres. Prénom (ou début de prénom) d'un élève à dispenser ? ")
+def gerer_eleves_dispenses(fichier_eleves):
+    
+    reponse_dispense = '1'
+    while reponse_dispense in ['1','2','3','4']:
 
-        for eleve in lecteur:
-            if prenom_eleve in eleve[1]:
-                liste_eleves_dispenses.append(eleve)
-    return liste_eleves_dispenses
+        # 1 - ajouter un élève à dispenser
+        if reponse_dispense == '1':
+
+            # si la liste n'est pas vide, on l'affiche
+            if len(liste_eleves_dispenses) != 0:
+                print("Élèves dispensés du tirage :")
+                for eleve in liste_eleves_dispenses:
+                    print(f"  -- {eleve[1]} {eleve[0]}")
+            
+            # on consulte la liste de tous les élèves
+            with open(fichier_eleves,newline='') as db_eleves:
+                lecteur = csv.reader(db_eleves,delimiter=';')
+                dispense_locale = []
+                prenom_eleve = input("Veuillez entrer le prénom (ou les premières lettres du prénom) d'un élève à dispenser du tirage : ")
+                while not prenom_eleve.isalpha():
+                    prenom_eleve = input("Veuillez ne pas entrer de chiffres. Prénom (ou début de prénom) d'un élève à dispenser ? ")
+
+                for eleve in lecteur:
+                    if prenom_eleve in eleve[1]:
+                        if eleve not in liste_eleves_dispenses:
+                            dispense_locale.append(eleve)
+                        else:
+                            print("  --  Cet élève est déjà dispensé.")
+                
+                if len(dispense_locale) != 0:
+                    if len(dispense_locale) == 1:
+                        liste_eleves_dispenses.append(dispense_locale[0])
+                        print("L'élève suivant(e) a été ajouté(e) à la liste des élèves dispensés :")
+                        print(f"  --  {dispense_locale[0][1]} {dispense_locale[0][0]}")
+                    elif len(dispense_locale) > 1:
+                        print("Les élèves suivants ont été trouvés pour cette saisie :")
+                        x=1
+                        numeros_ajout = [i for i in range(1,(len(dispense_locale)+1))]
+                        for eleve in dispense_locale:
+                            print(f"  {x} - {eleve[1]} {eleve[0]}")
+                            x+=1
+                        consigne = input(f"Quel élève ajouter aux élèves dispensés ? {numeros_ajout}")
+                        while int(consigne) not in numeros_ajout:
+                            consigne = input(f"Veuillez répondre parmi {numeros_ajout} : ")
+                        liste_eleves_dispenses.append(dispense_locale[int(consigne)-1])
+        
+
+        # 2 - retirer un élève de la liste des dispensés
+        if reponse_dispense == '2':
+            # si la liste n'est pas vide, on l'affiche
+            if len(liste_eleves_dispenses) != 0:
+                print("Élèves dispensés du tirage :")
+                x=1
+                numeros_retrait = [i for i in range(1,(len(liste_eleves_dispenses)+1))]
+                for eleve in liste_eleves_dispenses:
+                    print(f"  {x} -- {eleve[1]} {eleve[0]}")
+                    x+=1
+
+                reponse = input(f"Veuillez entrer le numéro de l'élève à retirer de la liste {numeros_retrait} : ")
+                while not reponse.isnumeric():
+                    reponse = input(f"Veuillez répondre en chiffres. Entrez le numéro de l'élève à retirer de la liste {numeros_retrait} : ")
+                while int(reponse) not in numeros_retrait:
+                    reponse = input(f"Réponse irrecevable. Veuillez entrer le numéro de l'élève à dispenser {numeros_retrait} : ")
+                eleve_supprime = liste_eleves_dispenses[int(reponse)-1]
+                liste_eleves_dispenses.remove(eleve_supprime)
+                print(f"  --  L'élève {eleve_supprime[1]} {eleve_supprime[0]} a été supprimé(e) de la liste des élèves à dispenser du tirage.")
+
+
+            # s'il n'y a pas d'élève dans la liste des dispensés, on sort de la boucle
+            else :
+                print("Il n'y a aucun élève dispensé pour l'instant.")
+
+        # 3 - consulter la liste des élèves dispensés
+        if reponse_dispense == '3':
+            if len(liste_eleves_dispenses) != 0:
+                print("  |  Liste des élèves dispensés du tirage :")
+                for eleve in liste_eleves_dispenses:
+                    print(f"  |    -- {eleve[1]} {eleve[0]}")
+            else :
+                print("  -- Aucun élève dispensé pour l'instant.")
+
+        reponse_dispense = input("Que voulez-vous faire ?\n1 - Ajouter un élève à dispenser.\n2 - Retirer un élève à dispenser de la liste ci-dessus.\n3 - Consulter la liste des élèves dispensés.\n4 - Sortir de la gestion des élèves dispensés.")
+        while reponse_dispense not in ['1','2','3','4']:
+            reponse_dispense = input("Je n'ai pas compris votre réponse. Que voulez-vous faire ?\n 1 - Ajouter un élève à dispenser.\2 - Retirer un élève à dispenser de la liste ci-dessus.\n3 - Consulter la liste des élèves dispensés.\n4 - Sortir de la gestion des élèves dispensés.")
+
+        if reponse_dispense == '4':
+            return liste_eleves_dispenses
 
 def attribuer_joueur(liste_joueurs):
     ''' Attribue chaque joueur d'une liste de joueurs à l'équipe comportant
@@ -52,7 +126,7 @@ def attribuer_joueur(liste_joueurs):
         toutes_eq[index_eq].append(joueur)
     return None
 
-def programme_principal(fichier_eleves_csv):
+def repartition_equipes(fichier_eleves_csv):
     with open(fichier_eleves_csv,newline='') as db_eleves:
         lecteur = csv.reader(db_eleves,delimiter=';')
         liste_profs = []
@@ -127,37 +201,23 @@ else:
             equipe = []
             toutes_eq.append(equipe)
 
-        liste_eleves_dispenses = []
-        reponse_dispense = input("Y a-t-il  des élèves à dispenser avant de procéder au tirage (o/n) ? ")
-        while reponse_dispense not in ['o','n']:
-            nb_equipes_input = input("Je n'ai pas compris votre réponse.\nY a-t-il  des élèves à dispenser avant de procéder au tirage (o/n) ? ")
+        
+        reponse = input("Que voulez-vous faire ?\n1 - Procéder au tirage.\n2 - Ajouter ou gérer des élèves à dispenser.")
+        while reponse not in ['1','2']:
+            reponse = input("Je n'ai pas compris votre réponse.\nQue voulez-vous faire ?\n1 - Procéder au tirage.\n2 - Ajouter ou gérer des élèves à dispenser.")
         
         #on établit une liste des élèves à dispenser du tirage
-        while reponse_dispense=='o':
-            liste_eleves_dispenses = ajouter_eleve_dispense(fichier_eleves, liste_eleves_dispenses)
-            if len(liste_eleves_dispenses) == 0:
-                print('Aucun élève trouvé pour cette saisie.')
-            else:
-                if len(liste_eleves_dispenses) == 1:
-                    print("L'élève suivant a été trouvé :")
-                    print(f"{liste_eleves_dispenses[0][1]} {liste_eleves_dispenses[0][0]}")
-                else :
-                    print("Les élèves suivants ont été trouvés :")
-                    x=1
-                    for eleve_trouve in liste_eleves_dispenses:
-                        print(f"{x} - {eleve_trouve[1]} {eleve_trouve[0]}")
-                        x+=1
-            reponse_dispense = input("Voulez-vous ajouter un autre élève à dispenser (o/n) ? ")
-            while reponse_dispense not in ['o','n']:
-                reponse_dispense = input("Je n'ai pas compris votre réponse. Voulez-vous ajouter un autre élève à dispenser (o/n) ? ")
-
-        # si on ne dispense aucun élève au préalable :
-        if reponse_dispense == 'n':
+        while reponse=='2':
+            gerer_eleves_dispenses(fichier_eleves)           
 
             print("Les élèves suivants ne feront pas partie du tirage des équipes :")
             for eleve in liste_eleves_dispenses:
-                print(f"- {eleve[1]} {eleve[0]} -")
+                print(f"  -- {eleve[1]} {eleve[0]}")
+            reponse = input("Que voulez-vous faire ?\n1 - Procéder au tirage des équipes.\n2 - Modifier la liste des élèves dispensés.")
+            while reponse not in ['1','2']:
+                reponse = input('Veuillez répondre "1" ou "2".\n1 - Procéder au tirage des équipes.\n2 - Modifier la liste des élèves dispensés.')
 
-            programme_principal(fichier_eleves)
+        if reponse == '1':
+            repartition_equipes(fichier_eleves)
             print("Répartition des équipes effectuée.\nVous la trouverez dans le dossier \"tirage_equipes\"")
             input("Appuyez sur Entrée pour quitter le programme.")
