@@ -219,19 +219,27 @@ def repartition_equipes():
                 scripteur.writerow([eleve[0],eleve[1],couleur_equipe(eleve[4]),eleve[3]])
 
 
-
+#Vérification de la présence d'un fichier csv à traiter
 pth ="./"
 liste_fichiers_csv = glob(pth+"*.csv")
-if len(liste_fichiers_csv)>1:
+
+if not(liste_fichiers_csv):
+    print("Aucune liste d'élèves à traiter (fichier csv) trouvée dans le répertoire.")
+    print("Veuillez fournir une liste d'élèves avant de lancer ce programme.")
+    input("Appuyez sur Entrée pour quitter.")
+
+elif len(liste_fichiers_csv)>1:
     print("Il y a plusieurs fichiers csv dans le répertoire :")
     for fichier in liste_fichiers_csv:
         print(f"    -- {fichier[2:]}")
     print("Veuillez ne conserver que le fichier qui contient la liste des élèves à répartir, puis relancez le programme.")
+    input("Appuyez sur Entrée pour mettre fin au programme.")
 else:
     print(f"Le fichier \"{liste_fichiers_csv[0][2:]}\" a été trouvé dans le répertoire.")
     reponse_fichier_eleves = input("Voulez-vous l'utiliser pour la répartition (o/n) ? ")
     while reponse_fichier_eleves not in ['o','n']:
-        reponse_fichier_eleves = input(f"Je n'ai pas compris votre réponse.\nVoulez-vous utiliser le fichier \"{liste_fichiers_csv[0][2:]}\" pour la répartition ? (o/n)")
+        print("Je n'ai pas compris votre réponse.")
+        reponse_fichier_eleves = input(f"Voulez-vous utiliser le fichier \"{liste_fichiers_csv[0][2:]}\" pour la répartition ? (o/n)")
     if reponse_fichier_eleves == 'n':
         print("Les équipes n'ont pas été réparties.\nFin du programme.")
     else:
@@ -250,26 +258,37 @@ else:
             for eleve in lecteur:
                 liste_eleves.append(eleve)
             print(f"Nombres d'élèves trouvés dans le fichier : {len(liste_eleves[1:])}")
-        reponse = input("Que voulez-vous faire ?\n1 - Procéder au tirage.\n2 - Ajouter ou gérer des élèves à dispenser.")
-        while reponse not in ['1','2']:
-            reponse = input("Je n'ai pas compris votre réponse.\nQue voulez-vous faire ?\n1 - Procéder au tirage.\n2 - Ajouter ou gérer des élèves à dispenser.")
-        
-        #on établit une liste des élèves à dispenser du tirage
-        while reponse=='2':
-            gerer_eleves_dispenses()           
 
-            if liste_eleves_dispenses:
-                print('')
-                print("  |  Les élèves suivants ne feront pas partie du tirage des équipes :")
-                for eleve in liste_eleves_dispenses:
-                    print(f"  |    -- {eleve[1]} {eleve[0]}")
-                print('')
-            
-            reponse = input("Que voulez-vous faire ?\n1 - Procéder au tirage des équipes.\n2 - Modifier la liste des élèves dispensés.")
+
+        afficher_menu = True
+        reponse = '1'
+
+        while afficher_menu == True and reponse in ['1','2']:
+            print('')
+            print("Que voulez-vous faire ?")
+            print("1 - Procéder au tirage.")
+            reponse = input("2 - Ajouter ou gérer des élèves à dispenser.")
             while reponse not in ['1','2']:
-                reponse = input('Veuillez répondre "1" ou "2".\n1 - Procéder au tirage des équipes.\n2 - Modifier la liste des élèves dispensés.')
+                print('')
+                print("  -->  Je n'ai pas compris votre réponse.")
+                print('')
+                print("Que voulez-vous faire ?")
+                print("1 - Procéder au tirage.")
+                reponse = input("2 - Ajouter ou gérer des élèves à dispenser.")        
+            #on établit une liste des élèves à dispenser du tirage
+            if reponse=='2':
+                gerer_eleves_dispenses()           
 
-        if reponse == '1':
-            repartition_equipes()
-            print("Répartition des équipes effectuée.\nVous la trouverez dans le dossier \"tirage_equipes\"")
-            input("Appuyez sur Entrée pour quitter le programme.")
+                if liste_eleves_dispenses:
+                    print('')
+                    print("  |  Les élèves suivants ne feront pas partie du tirage des équipes :")
+                    for eleve in liste_eleves_dispenses:
+                        print(f"  |    -- {eleve[1]} {eleve[0]}")
+                    print('')
+            
+            if reponse == '1':
+                repartition_equipes()
+                afficher_menu == False
+                print("Répartition des équipes effectuée.")
+                print("Vous la trouverez dans le dossier \"tirage_equipes\".")
+                input("Appuyez sur Entrée pour quitter le programme.")
