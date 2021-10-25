@@ -2,6 +2,7 @@ import random
 import csv
 from pathlib import Path
 from glob import glob
+import os
 
 # liste globale de toutes les équipes
 toutes_eq = []
@@ -215,13 +216,52 @@ def repartition_equipes():
 
     path = Path('./tirage_equipes')
     path.mkdir(exist_ok=True)
+    path = Path('./tirage_equipes/par_classe')
+    path.mkdir(exist_ok=True)
+    path = Path('./tirage_equipes/par_equipe')
+    path.mkdir(exist_ok=True)
 
-    with open('./tirage_equipes/equipes_eleves.csv', 'w', newline='',encoding='ansi') as equipes_attribuees:
+
+    with open('./tirage_equipes/TIRAGE_GLOBAL.csv', 'w', newline='',encoding='ansi') as equipes_attribuees:
         scripteur = csv.writer(equipes_attribuees, delimiter=';')
         scripteur.writerow(['nom','prenom','equipe','prof'])
         for equipe in toutes_eq:
             for eleve in equipe:
                 scripteur.writerow([eleve[0],eleve[1],couleur_equipe(eleve[4]),eleve[3]])
+
+    # if not os.path.exists('./tirage_equipes'):
+    #     os.mkdir('./tirage_equipes')
+    # if not os.path.exists('./tirage_equipes/par_classe'):
+    #     os.mkdir('./tirage_equipes/par_classe')
+    # if not os.path.exists('./tirage_equipes/par_equipe'):
+    #     os.mkdir('./tirage_equipes/par_equipe')
+    
+    
+    for x in range(0,len(liste_profs)):
+        with open(f'./tirage_equipes/par_classe/tirage_{liste_profs[x]}.csv', 'w', newline='',encoding='ansi') as equipes_attribuees:
+            scripteur = csv.writer(equipes_attribuees, delimiter=';')
+            scripteur.writerow(['nom','prenom','equipe','prof'])
+            for equipe in toutes_eq:
+                for eleve in equipe:
+                    if eleve[3] == liste_profs[x]:
+                        scripteur.writerow([eleve[0],eleve[1],couleur_equipe(eleve[4]),eleve[3]])
+
+
+    liste_equipes = []
+    for equipe in toutes_eq:
+        for eleve in equipe:
+            liste_equipes.append(couleur_equipe(eleve[4]))
+    liste_equipes = list(set(liste_equipes))
+    print(liste_equipes)
+    for x in range(0,len(liste_equipes)):
+        with open(f'./tirage_equipes/par_equipe/tirage_{liste_equipes[x]}.csv', 'w', newline='',encoding='ansi') as equipes_attribuees:
+            scripteur = csv.writer(equipes_attribuees, delimiter=';')
+            scripteur.writerow(['nom','prenom','equipe','prof'])
+            for equipe in toutes_eq:
+                equipe.sort()
+                for eleve in equipe:
+                    if couleur_equipe(eleve[4]) == liste_equipes[x]:
+                        scripteur.writerow([eleve[0],eleve[1],couleur_equipe(eleve[4]),eleve[3]])
 
 
 #Vérification de la présence d'un fichier csv à traiter
