@@ -156,11 +156,9 @@ def consulter_dispense():
         print("  |  Liste des élèves dispensés du tirage :")
         for eleve in liste_eleves_dispenses:
             print(f"  |    -- {eleve[1]} {eleve[0]}")
-        print('')
     else :
         print('')
         print("    -- Aucun élève dispensé pour l'instant.")
-        print('')
     
     return None
 
@@ -177,11 +175,18 @@ def attribuer_joueur(liste_joueurs):
 
 def repartition_equipes():
 
-    print(f"élèves avant dispense : {len(liste_eleves)-1}")
-    # on supprime les éventuels élèves dispensés de la liste utilisée pour le tirage
-    for eleve in liste_eleves_dispenses:
-        liste_eleves.remove(eleve)
-    print(f"élèves après dispense : {len(liste_eleves)-1}")
+    if liste_eleves_dispenses:
+        print('')
+        print(f"Nombre d'élèves avant dispense : {len(liste_eleves)}")
+        # on supprime les éventuels élèves dispensés de la liste utilisée pour le tirage
+        for eleve in liste_eleves_dispenses:
+            liste_eleves.remove(eleve)
+        print(f"Nombre d'élèves répartis après dispense : {len(liste_eleves)}")
+        print('')
+    else:
+        print('')
+        print(f"Nombre d'élèves répartis : {len(liste_eleves)}")
+        print('')
 
     liste_profs = []
     for eleve in liste_eleves[1:]:
@@ -255,9 +260,12 @@ else:
 
         with open(fichier_eleves,newline='') as db_eleves:
             lecteur = csv.reader(db_eleves,delimiter=';')
+            x=0
             for eleve in lecteur:
-                liste_eleves.append(eleve)
-            print(f"Nombres d'élèves trouvés dans le fichier : {len(liste_eleves[1:])}")
+                if x>0:
+                    liste_eleves.append(eleve)
+                x+=1 # on passe l'en-tête du csv
+            print(f"Nombres d'élèves trouvés dans le fichier : {len(liste_eleves)}")
 
 
         afficher_menu = True
@@ -274,8 +282,9 @@ else:
                 print('')
                 print("Que voulez-vous faire ?")
                 print("1 - Procéder au tirage.")
-                reponse = input("2 - Ajouter ou gérer des élèves à dispenser.")        
-            #on établit une liste des élèves à dispenser du tirage
+                reponse = input("2 - Ajouter ou gérer des élèves à dispenser.") 
+                   
+            # on établit une liste des élèves à dispenser du tirage
             if reponse=='2':
                 gerer_eleves_dispenses()           
 
@@ -284,11 +293,10 @@ else:
                     print("  |  Les élèves suivants ne feront pas partie du tirage des équipes :")
                     for eleve in liste_eleves_dispenses:
                         print(f"  |    -- {eleve[1]} {eleve[0]}")
-                    print('')
             
             if reponse == '1':
                 repartition_equipes()
-                afficher_menu == False
+                afficher_menu = False
                 print("Répartition des équipes effectuée.")
                 print("Vous la trouverez dans le dossier \"tirage_equipes\".")
                 input("Appuyez sur Entrée pour quitter le programme.")
