@@ -34,34 +34,34 @@ def gerer_eleves_dispenses():
     afficher_menu = True
     reponse_dispense = '1'    
     while afficher_menu and reponse_dispense in ['1','2','3','4']:
+        print('')
+        print("Que voulez-vous faire ?")
+        print("1 - Ajouter un élève à dispenser.")
+        print("2 - Retirer un élève à dispenser.")
+        print("3 - Consulter la liste des élèves dispensés.")
+        reponse_dispense = input("4 - Sortir de la gestion des élèves dispensés.")
+        while reponse_dispense not in ['1','2','3','4']:
             print('')
+            print("Je n'ai pas compris votre réponse.")
             print("Que voulez-vous faire ?")
             print("1 - Ajouter un élève à dispenser.")
             print("2 - Retirer un élève à dispenser.")
             print("3 - Consulter la liste des élèves dispensés.")
             reponse_dispense = input("4 - Sortir de la gestion des élèves dispensés.")
-            while reponse_dispense not in ['1','2','3','4']:
-                print('')
-                print("Je n'ai pas compris votre réponse.")
-                print("Que voulez-vous faire ?")
-                print("1 - Ajouter un élève à dispenser.")
-                print("2 - Retirer un élève à dispenser.")
-                print("3 - Consulter la liste des élèves dispensés.")
-                reponse_dispense = input("4 - Sortir de la gestion des élèves dispensés.")
 
 
-            # 1 - ajouter un élève à dispenser
-            if reponse_dispense == '1':
-                ajouter_dispense()
-            # 2 - retirer un élève de la liste des dispensés
-            if reponse_dispense == '2':
-                retirer_dispense()
-            # 3 - consulter la liste des élèves dispensés
-            if reponse_dispense == '3':
-                consulter_dispense()
-            # 4 - sortir de la gestion des dispenses
-            if reponse_dispense == '4':
-                afficher_menu = False
+        # 1 - ajouter un élève à dispenser
+        if reponse_dispense == '1':
+            ajouter_dispense()
+        # 2 - retirer un élève de la liste des dispensés
+        if reponse_dispense == '2':
+            retirer_dispense()
+        # 3 - consulter la liste des élèves dispensés
+        if reponse_dispense == '3':
+            consulter_dispense()
+        # 4 - sortir de la gestion des dispenses
+        if reponse_dispense == '4':
+            afficher_menu = False
     return None
 
 def ajouter_dispense():
@@ -145,9 +145,10 @@ def retirer_dispense():
 
     # s'il n'y a pas d'élève dans la liste des dispensés, on sort de la boucle
     else :
-        print("Il n'y a aucun élève dispensé pour l'instant.")
-    
-    gerer_eleves_dispenses()
+        print('')
+        print("  --  Il n'y a aucun élève dispensé pour l'instant.")
+
+    return None
 
 def consulter_dispense():
     if len(liste_eleves_dispenses) != 0:
@@ -162,7 +163,6 @@ def consulter_dispense():
         print('')
     
     return None
-
 
 def attribuer_joueur(liste_joueurs):
     ''' Attribue chaque joueur d'une liste de joueurs à l'équipe comportant
