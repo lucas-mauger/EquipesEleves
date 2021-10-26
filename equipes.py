@@ -2,6 +2,18 @@ import random
 import csv
 from pathlib import Path
 from glob import glob
+import os
+import sys
+
+# on checke sur quel OS on tourne pour éviter le problème d'encodage utf-8/ansi
+# évite en principe les problèmes d'ouverture sous Excel/Windows
+my_os = sys.platform
+encodage='utf-8'
+if my_os=="win32":
+    encodage='ansi'
+
+# nom du fichier utilisé comme base de données des élèves
+fichier_eleves = ''
 
 # liste globale de toutes les équipes
 toutes_eq = []
@@ -71,10 +83,10 @@ def ajouter_dispense():
         print("Élèves dispensés du tirage :")
         for eleve in liste_eleves_dispenses:
             print(f"  -- {eleve[1]} {eleve[0]}")
-        print('')
             
     # on consulte la liste de tous les élèves
     dispense_locale = []
+    print('')
     prenom_eleve = input("Veuillez entrer le prénom (ou les premières lettres du prénom) d'un élève à dispenser du tirage : ")
     while not prenom_eleve.isalpha():
         prenom_eleve = input("Veuillez ne pas entrer de chiffres. Prénom (ou début de prénom) d'un élève à dispenser ? ")
@@ -212,17 +224,118 @@ def repartition_equipes():
         attribuer_joueur(liste_filles)
         attribuer_joueur(liste_garcons)
 
+    # nettoyage éventuel des fichiers du dossier "tirage_equipes"
+    pth = './tirage_equipes/'
+    pth_eq = './tirage_equipes/par_equipe/'
+    pth_cl = './tirage_equipes/par_classe'
+    tirages_profs = glob(pth_cl + '*.*')
+    tirage_eq = glob(pth_eq + '*.*')
+    for fichier in tirages_profs:
+        os.remove(fichier)
+    for fichier in tirage_eq:
+        os.remove(fichier)
 
+    # création éventuelle des dossiers pour placer les tirages
     path = Path('./tirage_equipes')
     path.mkdir(exist_ok=True)
+    path = Path('./tirage_equipes/par_classe')
+    path.mkdir(exist_ok=True)
+    path = Path('./tirage_equipes/par_equipe')
+    path.mkdir(exist_ok=True)
 
-    with open('./tirage_equipes/equipes_eleves.csv', 'w', newline='',encoding='ansi') as equipes_attribuees:
+    # création du csv global
+    with open('./tirage_equipes/TIRAGE_GLOBAL.csv', 'w', newline='',encoding=encodage) as equipes_attribuees:
         scripteur = csv.writer(equipes_attribuees, delimiter=';')
         scripteur.writerow(['nom','prenom','equipe','prof'])
         for equipe in toutes_eq:
             for eleve in equipe:
                 scripteur.writerow([eleve[0],eleve[1],couleur_equipe(eleve[4]),eleve[3]])
+    
+    # création des csv par classe
+    for x in range(0,len(liste_profs)):
+        with open(f'./tirage_equipes/par_classe/tirage_{liste_profs[x]}.csv', 'w', newline='',encoding=encodage) as equipes_attribuees:
+            scripteur = csv.writer(equipes_attribuees, delimiter=';')
+            scripteur.writerow(['nom','prenom','equipe','prof'])
+            for equipe in toutes_eq:
+                for eleve in equipe:
+                    if eleve[3] == liste_profs[x]:
+                        scripteur.writerow([eleve[0],eleve[1],couleur_equipe(eleve[4]),eleve[3]])
 
+    # récupération des noms des équipes pour créer les fichiers csv adéquats
+    liste_equipes = []
+    for equipe in toutes_eq:
+        for eleve in equipe:
+            if couleur_equipe(eleve[4]) not in liste_equipes:
+                liste_equipes.append(couleur_equipe(eleve[4]))
+
+    # création des csv par equipe
+    for x in range(0,len(liste_equipes)):
+        with open(f'./tirage_equipes/par_equipe/tirage_{liste_equipes[x]}.csv', 'w', newline='',encoding=encodage) as equipes_attribuees:
+            scripteur = csv.writer(equipes_attribuees, delimiter=';')
+            scripteur.writerow(['nom','prenom','equipe','prof'])
+            for equipe in toutes_eq:
+                equipe.sort()
+                for eleve in equipe:
+                    if couleur_equipe(eleve[4]) == liste_equipes[x]:
+                        scripteur.writerow([eleve[0],eleve[1],couleur_equipe(eleve[4]),eleve[3]])
+
+def programme_principal():
+
+    nb_equipes_input = input("Combien d'équipes pour la répartition ? (répondre en chiffres) : ")
+    while not nb_equipes_input.isnumeric():
+        nb_equipes_input = input("Veuillez répondre en chiffres : ")
+    nb_equipes = int(nb_equipes_input)
+    # on initialise la liste pour que la fonction index_plus_petite_equipe fonctionne
+    for i in range(0,nb_equipes):
+        equipe = []
+        toutes_eq.append(equipe)
+
+    with open(fichier_eleves,newline='') as db_eleves:
+        lecteur = csv.reader(db_eleves,delimiter=';')
+        x=0
+        for eleve in lecteur:
+            if x>0:
+                liste_eleves.append(eleve)
+            x+=1 # on passe l'en-tête du csv
+        print(f"Nombres d'élèves trouvés dans le fichier : {len(liste_eleves)}")
+
+
+    afficher_menu = True
+    reponse = '1'
+
+    while afficher_menu == True and reponse in ['1','2']:
+        print('')
+        print("Que voulez-vous faire ?")
+        print("1 - Procéder au tirage.")
+        reponse = input("2 - Ajouter ou gérer des élèves à dispenser.")
+        while reponse not in ['1','2']:
+            print('')
+            print("  -->  Je n'ai pas compris votre réponse.")
+            print('')
+            print("Que voulez-vous faire ?")
+            print("1 - Procéder au tirage.")
+            reponse = input("2 - Ajouter ou gérer des élèves à dispenser.") 
+                
+        # on établit une liste des élèves à dispenser du tirage
+        if reponse=='2':
+            gerer_eleves_dispenses()           
+
+            if liste_eleves_dispenses:
+                print('')
+                print("  |  Les élèves suivants ne feront pas partie du tirage des équipes :")
+                for eleve in liste_eleves_dispenses:
+                    print(f"  |    -- {eleve[1]} {eleve[0]}")
+        
+        if reponse == '1':
+            repartition_equipes()
+            afficher_menu = False
+            print("Répartition des équipes effectuée.")
+            print("Vous la trouverez dans le dossier \"tirage_equipes\".")
+            input("Appuyez sur Entrée pour quitter le programme.")
+
+    return None
+
+print('OS en cours '+my_os)
 
 #Vérification de la présence d'un fichier csv à traiter
 pth ="./"
@@ -235,10 +348,22 @@ if not(liste_fichiers_csv):
 
 elif len(liste_fichiers_csv)>1:
     print("Il y a plusieurs fichiers csv dans le répertoire :")
+    print('')
+    numeros_fichiers = [i for i in range(1,len(liste_fichiers_csv)+1)]
     for fichier in liste_fichiers_csv:
-        print(f"    -- {fichier[2:]}")
-    print("Veuillez ne conserver que le fichier qui contient la liste des élèves à répartir, puis relancez le programme.")
-    input("Appuyez sur Entrée pour mettre fin au programme.")
+        print(f"    {(liste_fichiers_csv.index(fichier))+1} --  {fichier[2:]}")
+    print('')
+    choix_fichier = input(f"Veuillez indiquer lequel conserver parmi {numeros_fichiers} : ")
+    while int(choix_fichier) not in numeros_fichiers:
+        print('')
+        choix_fichier = input(f"Veuillez indiquer un choix parmi {numeros_fichiers} : ")
+    fichier_eleves = f'{liste_fichiers_csv[int(choix_fichier)-1][2:]}'
+    print('')
+    print(f"  --  Fichier conservé pour la répatition : \"{fichier_eleves}\"")
+    print('')
+
+    programme_principal()
+
 else:
     print(f"Le fichier \"{liste_fichiers_csv[0][2:]}\" a été trouvé dans le répertoire.")
     reponse_fichier_eleves = input("Voulez-vous l'utiliser pour la répartition (o/n) ? ")
@@ -249,54 +374,5 @@ else:
         print("Les équipes n'ont pas été réparties.\nFin du programme.")
     else:
         fichier_eleves = f'{liste_fichiers_csv[0][2:]}'
-        nb_equipes_input = input("Combien d'équipes pour la répartition ? (répondre en chiffres) : ")
-        while not nb_equipes_input.isnumeric():
-            nb_equipes_input = input("Veuillez répondre en chiffres : ")
-        nb_equipes = int(nb_equipes_input)
-        # on initialise la liste pour que la fonction index_plus_petite_equipe fonctionne
-        for i in range(0,nb_equipes):
-            equipe = []
-            toutes_eq.append(equipe)
-
-        with open(fichier_eleves,newline='') as db_eleves:
-            lecteur = csv.reader(db_eleves,delimiter=';')
-            x=0
-            for eleve in lecteur:
-                if x>0:
-                    liste_eleves.append(eleve)
-                x+=1 # on passe l'en-tête du csv
-            print(f"Nombres d'élèves trouvés dans le fichier : {len(liste_eleves)}")
-
-
-        afficher_menu = True
-        reponse = '1'
-
-        while afficher_menu == True and reponse in ['1','2']:
-            print('')
-            print("Que voulez-vous faire ?")
-            print("1 - Procéder au tirage.")
-            reponse = input("2 - Ajouter ou gérer des élèves à dispenser.")
-            while reponse not in ['1','2']:
-                print('')
-                print("  -->  Je n'ai pas compris votre réponse.")
-                print('')
-                print("Que voulez-vous faire ?")
-                print("1 - Procéder au tirage.")
-                reponse = input("2 - Ajouter ou gérer des élèves à dispenser.") 
-                   
-            # on établit une liste des élèves à dispenser du tirage
-            if reponse=='2':
-                gerer_eleves_dispenses()           
-
-                if liste_eleves_dispenses:
-                    print('')
-                    print("  |  Les élèves suivants ne feront pas partie du tirage des équipes :")
-                    for eleve in liste_eleves_dispenses:
-                        print(f"  |    -- {eleve[1]} {eleve[0]}")
-            
-            if reponse == '1':
-                repartition_equipes()
-                afficher_menu = False
-                print("Répartition des équipes effectuée.")
-                print("Vous la trouverez dans le dossier \"tirage_equipes\".")
-                input("Appuyez sur Entrée pour quitter le programme.")
+    
+    programme_principal()
