@@ -24,6 +24,10 @@ liste_eleves = []
 # liste éventuelle des élèves à enlever du tirage
 liste_eleves_dispenses = []
 
+# liste des noms des équipes, récupérée dans un csv spécifique
+fichier_noms_eq = ''
+noms_equipes = []
+
 def index_plus_petite_equipe(liste_equipes) :
     ''' Retourne l'index de l'équipe comptant le moins de joueurs '''
     tailles_equipes = []
@@ -35,6 +39,10 @@ def index_plus_petite_equipe(liste_equipes) :
 
 def couleur_equipe(numero_equipe):
     liste_couleurs = ['jaune','rouge','bleu','vert','violet','orange','blanc','noir']
+
+    if noms_equipes:
+        liste_couleurs = noms_equipes
+
     # il n'y a pas d'équipe 0, on l'a évité dans le code
     liste_numeros = [i for i in range(1,(len(liste_couleurs)+1))]
     if int(numero_equipe[6:]) in liste_numeros:
@@ -47,6 +55,8 @@ def gerer_eleves_dispenses():
     reponse_dispense = '1'    
     while afficher_menu and reponse_dispense in ['1','2','3','4']:
         print('')
+        if reponse_dispense not in ['1','2','3','4']:
+            print("Je n'ai pas compris votre réponse.")
         print("Que voulez-vous faire ?")
         print("1 - Ajouter un élève à dispenser.")
         print("2 - Retirer un élève à dispenser.")
@@ -153,7 +163,6 @@ def retirer_dispense():
         liste_eleves_dispenses.remove(eleve_supprime)
         print('')
         print(f"  --  L'élève {eleve_supprime[1]} {eleve_supprime[0]} a été supprimé(e) de la liste des élèves à dispenser du tirage.")
-        print('')
 
     # s'il n'y a pas d'élève dans la liste des dispensés, on sort de la boucle
     else :
@@ -335,7 +344,7 @@ def programme_principal():
 
     return None
 
-print('OS en cours '+my_os)
+# print('OS en cours '+my_os)
 
 #Vérification de la présence d'un fichier csv à traiter
 pth ="./"
@@ -346,33 +355,63 @@ if not(liste_fichiers_csv):
     print("Veuillez fournir une liste d'élèves avant de lancer ce programme.")
     input("Appuyez sur Entrée pour quitter.")
 
-elif len(liste_fichiers_csv)>1:
-    print("Il y a plusieurs fichiers csv dans le répertoire :")
-    print('')
-    numeros_fichiers = [i for i in range(1,len(liste_fichiers_csv)+1)]
-    for fichier in liste_fichiers_csv:
-        print(f"    {(liste_fichiers_csv.index(fichier))+1} --  {fichier[2:]}")
-    print('')
-    choix_fichier = input(f"Veuillez indiquer lequel conserver parmi {numeros_fichiers} : ")
-    while int(choix_fichier) not in numeros_fichiers:
+else: # il y a bien un ou plusieurs fichiers csv dans le répertoire racine
+
+    if len(liste_fichiers_csv)>1:
+        print("Il y a plusieurs fichiers csv dans le répertoire :")
         print('')
-        choix_fichier = input(f"Veuillez indiquer un choix parmi {numeros_fichiers} : ")
-    fichier_eleves = f'{liste_fichiers_csv[int(choix_fichier)-1][2:]}'
-    print('')
-    print(f"  --  Fichier conservé pour la répatition : \"{fichier_eleves}\"")
-    print('')
+        numeros_fichiers = [i for i in range(1,len(liste_fichiers_csv)+1)]
+        for fichier in liste_fichiers_csv:
+            print(f"    {(liste_fichiers_csv.index(fichier))+1} --  {fichier[2:]}")
+        print('')
+        choix_f_el = input(f"Veuillez indiquer celui qui contient la liste des élèves parmi {numeros_fichiers} : ")
+        while int(choix_f_el) not in numeros_fichiers:
+            print('')
+            choix_f_el = input(f"Veuillez indiquer un choix parmi {numeros_fichiers} : ")
+        fichier_eleves = f'{liste_fichiers_csv[int(choix_f_el)-1][2:]}'
+        print('')
+        print(f"  --  Fichier conservé pour la répartition : \"{fichier_eleves}\"")
+        print('')
 
-    programme_principal()
-
-else:
-    print(f"Le fichier \"{liste_fichiers_csv[0][2:]}\" a été trouvé dans le répertoire.")
-    reponse_fichier_eleves = input("Voulez-vous l'utiliser pour la répartition (o/n) ? ")
-    while reponse_fichier_eleves not in ['o','n']:
-        print("Je n'ai pas compris votre réponse.")
-        reponse_fichier_eleves = input(f"Voulez-vous utiliser le fichier \"{liste_fichiers_csv[0][2:]}\" pour la répartition ? (o/n)")
-    if reponse_fichier_eleves == 'n':
-        print("Les équipes n'ont pas été réparties.\nFin du programme.")
     else:
-        fichier_eleves = f'{liste_fichiers_csv[0][2:]}'
+        print(f"Le fichier \"{liste_fichiers_csv[0][2:]}\" a été trouvé dans le répertoire.")
+        reponse_fichier_eleves = input("Voulez-vous l'utiliser pour la répartition (o/n) ? ")
+        while reponse_fichier_eleves not in ['o','n']:
+            print("Je n'ai pas compris votre réponse.")
+            reponse_fichier_eleves = input(f"Voulez-vous utiliser le fichier \"{liste_fichiers_csv[0][2:]}\" pour la répartition ? (o/n)")
+        if reponse_fichier_eleves == 'n':
+            print("Les équipes n'ont pas été réparties.\nFin du programme.")
+        else:
+            fichier_eleves = f'{liste_fichiers_csv[0][2:]}'
+
+    # gestion du fichier contenant les noms des équipes 
+    liste_fichiers_csv.remove(f".\\{fichier_eleves}")
+    if len(liste_fichiers_csv) == 1:
+        print(f"lLe fichier \"{liste_fichiers_csv[0][2:]}\" sera conservé pour générer les noms des équipes.")
+        reponse = input("Êtes-vous d'accord (o/n) ? ")
+        while reponse not in ['o','n']:
+            reponse = input('Veuillez répondre "o" ou "n" : ')
+        if reponse == "o":
+            noms_equipes = liste_fichiers_csv[0][2:]
+    elif len(liste_fichiers_csv) > 1:
+        print("Il y a plusieurs fichiers csv dans le répertoire :")
+        print('')
+        numeros_fichiers = [i for i in range(1,len(liste_fichiers_csv)+1)]
+        for fichier in liste_fichiers_csv:
+            print(f"    {(liste_fichiers_csv.index(fichier))+1} --  {fichier[2:]}")
+        print('')
+        choix_noms_eq = input(f"Veuillez indiquer celui qui contient les noms des équipes parmi {numeros_fichiers} : ")
+        while int(choix_noms_eq) not in numeros_fichiers:
+            print('')
+            choix_noms_eq = input(f"Veuillez indiquer un choix parmi {numeros_fichiers} : ")
+        fichier_noms_eq = f'{liste_fichiers_csv[int(choix_noms_eq)-1][2:]}'
+        print('')
+        print(f"  --  Fichier conservé pour les noms des équipes : \"{fichier_noms_eq}\"")
+
+        
+        with open(fichier_noms_eq,'r',newline='',encoding=encodage) as n_eq:
+            lecteur = csv.reader(n_eq)
+            for nom in lecteur:
+                noms_equipes.append(nom[0])
     
     programme_principal()
