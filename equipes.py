@@ -222,7 +222,11 @@ def repartition_equipes():
             elif eleve[3] == liste_profs[x] and eleve[2] in ['G','M']:
                 liste_garcons.append(eleve)
             elif eleve[3] == liste_profs[x] and not eleve[2] in ['F','G','M']:
-                print("Erreur de renseignement du sexe de l'élève")
+                print('/!\\ /!\\ /!\\ /!\\ /!\\ /!\\ /!\\ /!\\ /!\\ ')
+                print(f"Erreur de renseignement du sexe de l'élève {eleve[1]} {eleve[0]} (indiquez 'F' ou 'G').")
+                print("Élève non réparti(e) dans les équipes, veuillez vérifier vos informations.")
+                print('/!\\ /!\\ /!\\ /!\\ /!\\ /!\\ /!\\ /!\\ /!\\ ')
+                print('')
 
         random.shuffle(liste_filles)
         random.shuffle(liste_garcons)
