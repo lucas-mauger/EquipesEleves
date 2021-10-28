@@ -26,8 +26,8 @@ liste_eleves_dispenses = []
 
 # liste des noms des équipes, récupérée dans file_noms_eq
 noms_equipes = []
-file_noms_eq = Path('./noms_equipes/noms_equipes.csv')
-path_noms_eq = Path('./noms_equipes/')
+file_noms_eq = Path('../noms_equipes/noms_equipes.csv')
+path_noms_eq = Path('../noms_equipes/')
 
 def index_plus_petite_equipe(liste_equipes) :
     ''' Retourne l'index de l'équipe comptant le moins de joueurs '''
@@ -234,9 +234,9 @@ def repartition_equipes():
         attribuer_joueur(liste_garcons)
 
     # nettoyage éventuel des fichiers du dossier "tirage_equipes"
-    pth = './tirage_equipes/'
-    pth_eq = './tirage_equipes/par_equipe/'
-    pth_cl = './tirage_equipes/par_classe'
+    pth = '../tirage_equipes/'
+    pth_eq = '../tirage_equipes/par_equipe/'
+    pth_cl = '../tirage_equipes/par_classe/'
     tirages_profs = glob(pth_cl + '*.*')
     tirage_eq = glob(pth_eq + '*.*')
     for fichier in tirages_profs:
@@ -245,15 +245,15 @@ def repartition_equipes():
         os.remove(fichier)
 
     # création éventuelle des dossiers pour placer les tirages
-    path = Path('./tirage_equipes')
+    path = Path('../tirage_equipes')
     path.mkdir(exist_ok=True)
-    path = Path('./tirage_equipes/par_classe')
+    path = Path('../tirage_equipes/par_classe')
     path.mkdir(exist_ok=True)
-    path = Path('./tirage_equipes/par_equipe')
+    path = Path('../tirage_equipes/par_equipe')
     path.mkdir(exist_ok=True)
 
     # création du csv global
-    with open('./tirage_equipes/TIRAGE_GLOBAL.csv', 'w', newline='',encoding=encodage) as equipes_attribuees:
+    with open('../tirage_equipes/TIRAGE_GLOBAL.csv', 'w', newline='',encoding=encodage) as equipes_attribuees:
         scripteur = csv.writer(equipes_attribuees, delimiter=';')
         scripteur.writerow(['nom','prenom','equipe','prof'])
         for equipe in toutes_eq:
@@ -262,7 +262,7 @@ def repartition_equipes():
     
     # création des csv par classe
     for x in range(0,len(liste_profs)):
-        with open(f'./tirage_equipes/par_classe/tirage_{liste_profs[x]}.csv', 'w', newline='',encoding=encodage) as equipes_attribuees:
+        with open(f'../tirage_equipes/par_classe/tirage_{liste_profs[x]}.csv', 'w', newline='',encoding=encodage) as equipes_attribuees:
             scripteur = csv.writer(equipes_attribuees, delimiter=';')
             scripteur.writerow(['nom','prenom','equipe','prof'])
             for equipe in toutes_eq:
@@ -279,7 +279,7 @@ def repartition_equipes():
 
     # création des csv par equipe
     for x in range(0,len(liste_equipes)):
-        with open(f'./tirage_equipes/par_equipe/tirage_{liste_equipes[x]}.csv', 'w', newline='',encoding=encodage) as equipes_attribuees:
+        with open(f'../tirage_equipes/par_equipe/tirage_{liste_equipes[x]}.csv', 'w', newline='',encoding=encodage) as equipes_attribuees:
             scripteur = csv.writer(equipes_attribuees, delimiter=';')
             scripteur.writerow(['nom','prenom','equipe','prof'])
             for equipe in toutes_eq:
@@ -299,7 +299,7 @@ def programme_principal():
         equipe = []
         toutes_eq.append(equipe)
 
-    with open(fichier_eleves,newline='') as db_eleves:
+    with open(f'../{fichier_eleves}',newline='') as db_eleves:
         lecteur = csv.reader(db_eleves,delimiter=';')
         x=0
         for eleve in lecteur:
@@ -353,7 +353,7 @@ def programme_principal():
 # print('OS en cours '+my_os)
 
 #Vérification de la présence d'un fichier csv à traiter
-pth ="./"
+pth ="../"
 liste_fichiers_csv = glob(pth+"*.csv")
 
 if not(liste_fichiers_csv):
@@ -390,9 +390,12 @@ else: # il y a bien un ou plusieurs fichiers csv dans le répertoire racine
     if not path_noms_eq.exists():
         path_noms_eq.mkdir()
     if not file_noms_eq.exists():
-        print("Noms des équipes par défaut.")
-        print('Vous pouvez personnaliser les noms des équipes dans le fichier "noms_equipes.csv"')
-        print('se situant dans le répertoire "/noms_equipes", puis recommencer un tirage.') 
+        print('')
+        print('   ----------------------------')
+        print("   | Noms des équipes par défaut.")
+        print('   | Vous pouvez personnaliser les noms des équipes dans le fichier "noms_equipes.csv"')
+        print('   | se situant dans le répertoire "/noms_equipes", puis recommencer un tirage.') 
+        print('   ----------------------------')
         print('')
         # créer le fichier des noms d'équipes par défaut
         liste_noms_eq = ['jaune','rouge','bleu','vert','violet','orange','blanc','noir']
