@@ -24,9 +24,10 @@ liste_eleves = []
 # liste éventuelle des élèves à enlever du tirage
 liste_eleves_dispenses = []
 
-# liste des noms des équipes, récupérée dans un csv spécifique
-fichier_noms_eq = ''
+# liste des noms des équipes, récupérée dans file_noms_eq
 noms_equipes = []
+file_noms_eq = Path('./noms_equipes/noms_equipes.csv')
+path_noms_eq = Path('./noms_equipes/')
 
 def index_plus_petite_equipe(liste_equipes) :
     ''' Retourne l'index de l'équipe comptant le moins de joueurs '''
@@ -38,15 +39,10 @@ def index_plus_petite_equipe(liste_equipes) :
     return index_min_taille_equipes
 
 def renommer_equipe(numero_equipe):
-    liste_couleurs = ['jaune','rouge','bleu','vert','violet','orange','blanc','noir']
-
-    if noms_equipes:
-        liste_couleurs = noms_equipes
-
     # il n'y a pas d'équipe 0, on l'a évité dans le code
-    liste_numeros = [i for i in range(1,(len(liste_couleurs)+1))]
+    liste_numeros = [i for i in range(1,(len(noms_equipes)+1))]
     if int(numero_equipe[6:]) in liste_numeros:
-        numero_equipe = liste_couleurs[int(numero_equipe[6:])-1]
+        numero_equipe = noms_equipes[int(numero_equipe[6:])-1]
     return numero_equipe
 
 def gerer_eleves_dispenses():
@@ -381,35 +377,27 @@ else: # il y a bien un ou plusieurs fichiers csv dans le répertoire racine
 
     else:
         print(f"Le fichier \"{liste_fichiers_csv[0][2:]}\" a été trouvé dans le répertoire.")
-        reponse_fichier_eleves = input("Voulez-vous l'utiliser pour la répartition (o/n) ? ")
-        while reponse_fichier_eleves not in ['o','n']:
-            print("Je n'ai pas compris votre réponse.")
-            reponse_fichier_eleves = input(f"Voulez-vous utiliser le fichier \"{liste_fichiers_csv[0][2:]}\" pour la répartition ? (o/n)")
-        if reponse_fichier_eleves == 'n':
-            print("Les équipes n'ont pas été réparties.\nFin du programme.")
-        else:
-            fichier_eleves = f'{liste_fichiers_csv[0][2:]}'
+        print("Il sera utilisé comme source de données des élèves pour le tirage.")
+        fichier_eleves = f'{liste_fichiers_csv[0][2:]}'
 
     # gestion du fichier contenant les noms des équipes 
 
     #vérifier la présence du dossier "nom_equipes", créer si inexistant
-    file_noms_eq = Path('./noms_equipes/noms_equipes.csv')
-    path_noms_eq = Path('./noms_equipes/')
     if not path_noms_eq.exists():
         path_noms_eq.mkdir()
-        if not file_noms_eq.exists():
-            print("Noms des équipes par défaut.")
-            print('Vous pouvez personnaliser les noms des équipes dans le fichier "noms_equipes.csv"')
-            print('se situant dans le répertoire "/noms_equipes", puis recommencer un tirage.') 
-            print('')
-            # créer le fichier des noms d'équipes par défaut
-            liste_noms_eq = ['jaune','rouge','bleu','vert','violet','orange','blanc','noir']
-            with open('./noms_equipes/noms_equipes.csv','w',newline='',encoding=encodage) as noms_eq_defaut:
-                scripteur = csv.writer(noms_eq_defaut)
-                for nom in liste_noms_eq:
-                    scripteur.writerow([nom])
+    if not file_noms_eq.exists():
+        print("Noms des équipes par défaut.")
+        print('Vous pouvez personnaliser les noms des équipes dans le fichier "noms_equipes.csv"')
+        print('se situant dans le répertoire "/noms_equipes", puis recommencer un tirage.') 
+        print('')
+        # créer le fichier des noms d'équipes par défaut
+        liste_noms_eq = ['jaune','rouge','bleu','vert','violet','orange','blanc','noir']
+        with open(file_noms_eq,'w',newline='',encoding=encodage) as noms_eq_defaut:
+            scripteur = csv.writer(noms_eq_defaut)
+            for nom in liste_noms_eq:
+                scripteur.writerow([nom])
         
-    with open('./noms_equipes/noms_equipes.csv','r',newline='',encoding=encodage) as n_eq:
+    with open(file_noms_eq,'r',newline='',encoding=encodage) as n_eq:
         lecteur = csv.reader(n_eq)
         for nom in lecteur:
             noms_equipes.append(nom[0])
