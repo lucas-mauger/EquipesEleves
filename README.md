@@ -17,6 +17,8 @@ Pour le reste, il suffit de lancer le script et de se laisser guider pour procé
 
 Le résultat du tirage se trouvera dans un dossier "tirage_equipes" situé au même endroit que le fichier du script. Il contient le résultat du tirage sous plusieurs formes différentes : un tirage global contenant toutes les informations (que vous pourrez parcourir à l'aide d'un tableur en vous servant de la première ligne comme filtre, par exemple), mais aussi les tirages par classe/prof ou par équipes, ce qui peut faciliter l'impression des résultats.
 
+Notez bien que chaque nouveau tirage écrasera le tirage précédent, soyez donc vigilants !
+
 --------------------
 
 **Optionnel : choisir soi-même le nom des équipes.**
