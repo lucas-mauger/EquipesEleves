@@ -3,7 +3,7 @@ Script python permettant la génération aléatoire et paritaire d'équipes, not
 
 Le fonctionnement du script en soi consiste à être le plus simple possible : il suffit de placer un fichier csv (format exportable depuis n'importe quel logiciel de tableur type Excel/LibreOffice Calc) dans le même répertoire que le fichier du script, et de lancer ce dernier.
 
-Les renseignements fournis par le fichier csv doivent être organisés d'une certaine manière, comme dans le fichier "liste_eleves.csv" (version Windows ANSI ou UTF-8) disponible dans le dépot.
+Les renseignements fournis par le fichier csv doivent être organisés d'une certaine manière, comme dans le fichier "liste_eleves.csv" (version Windows ANSI ou UTF-8 pour Mac/Linux) disponible dans le dépot.
 
 **Il suffit de respecter la nomenclature suivante :
   -> première ligne :
