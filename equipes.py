@@ -43,6 +43,7 @@ def index_plus_petite_equipe(liste_equipes) :
 
 def renommer_equipe(numero_equipe):
     ''' Attribue des noms aux équipes selon le contenu du fichier "noms_equipes" '''
+
     # il n'y a pas d'équipe 0, on l'a évité dans le code
     liste_numeros = [i for i in range(1,(len(noms_equipes)+1))]
     if int(numero_equipe[6:]) in liste_numeros:
@@ -92,9 +93,9 @@ def ajouter_dispense():
 
     if len(liste_eleves_dispenses) != 0:
         print('')
-        print("Élèves dispensés du tirage :")
+        print("  |  Élèves déjà dispensés du tirage :")
         for eleve in liste_eleves_dispenses:
-            print(f"  -- {eleve[1]} {eleve[0]}")
+            print(f"  |    -- {eleve[1]} {eleve[0]}")
             
     # on consulte la liste de tous les élèves
     dispense_locale = []
@@ -147,6 +148,7 @@ def ajouter_dispense():
 
 def retirer_dispense():
     ''' Retire un élève de la liste des élèves non comptés au tirage (l'élève participe de nouveau au tirage aléatoire) '''
+
     # si la liste n'est pas vide, on l'affiche
     if liste_eleves_dispenses:
         print('')
@@ -191,6 +193,7 @@ def attribuer_joueur(liste_joueurs):
     ''' Attribue chaque joueur d'une liste de joueurs à l'équipe comportant
     le moins de joueurs au moment de l'attribution.\n
     Nécessite la variable globale "toutes_eq[]" initialisée au préalable.'''
+
     for joueur in liste_joueurs:
         index_eq = index_plus_petite_equipe(toutes_eq) 
         numero_equipe = (f'équipe {index_eq+1}') # on évite une "équipe 0"
@@ -201,6 +204,7 @@ def attribuer_joueur(liste_joueurs):
 def repartition_equipes():
     ''' Génère pour chaque classe les listes de filles et de garçons à répartir dans les équipes,\n
     en mélange l'ordre aléatoirement, puis effectue l'attribution. '''
+
     if liste_eleves_dispenses:
         print('')
         print(f"Nombre d'élèves avant dispense : {len(liste_eleves)}")
@@ -231,10 +235,10 @@ def repartition_equipes():
             elif eleve[3] == liste_profs[x] and eleve[2] in ['G','M']:
                 liste_garcons.append(eleve)
             elif eleve[3] == liste_profs[x] and not eleve[2] in ['F','G','M']:
-                print('/!\\ /!\\ /!\\ /!\\ /!\\ /!\\ /!\\ /!\\ /!\\ ')
+                print('/!\\   /!\\   /!\\   /!\\   /!\\   /!\\')
                 print(f"Erreur de renseignement du sexe de l'élève {eleve[1]} {eleve[0]} (indiquez 'F' ou 'G').")
                 print("Élève non réparti(e) dans les équipes, veuillez vérifier vos informations.")
-                print('/!\\ /!\\ /!\\ /!\\ /!\\ /!\\ /!\\ /!\\ /!\\ ')
+                print('/!\\   /!\\   /!\\   /!\\   /!\\   /!\\')
                 print('')
 
         random.shuffle(liste_filles)
@@ -306,6 +310,7 @@ def repartition_equipes():
 def programme_principal():
     ''' Interface de dialogue avec l'utilisateur, permettant de définir le nombre d'équipes,\n
     et l'éventuelle gestion des élèves absents/dispensés du tirage aléatoire des équipes. '''
+
     nb_equipes_input = input("Combien d'équipes pour la répartition ? (répondre en chiffres) : ")
     while not nb_equipes_input.isnumeric():
         nb_equipes_input = input("Veuillez répondre en chiffres : ")
@@ -352,17 +357,46 @@ def programme_principal():
                     print(f"  |    -- {eleve[1]} {eleve[0]}")
         
         if reponse == '1':
-            repartition_equipes()
-            afficher_menu = False
+            pth = Path('./tirage_equipes/')
+            if pth.exists():
+                print('')
+                print('  ------------------------------------')
+                print('  Le dossier "tirage_equipes" existe déjà.')
+                print("  S'il contient des fichiers issus d'un tirage précédent, ces derniers seront ÉCRASÉS.")
+                print('  ------------------------------------')
+                print('')
+                reponse = input("Procéder au tirage malgré tout (o/n) ? ")
+                while reponse not in ['o','n']:
+                    reponse = input('Veuillez répondre "o" ou "n" : ')
+                
+                if reponse == "o":
+                    repartition_equipes()
+                    afficher_menu = False
 
-            
-            print("Noms des équipes utilisés pour ce tirage :")
-            print(noms_equipes[0:nb_equipes])
-            print('')
+                    
+                    print("Noms des équipes utilisés pour ce tirage :")
+                    print(noms_equipes[0:nb_equipes])
+                    print('')
 
-            print("Répartition des équipes effectuée.")
-            print("Vous la trouverez dans le dossier \"tirage_equipes\".")
-            input("Appuyez sur Entrée pour quitter le programme.")
+                    print("Répartition des équipes effectuée.")
+                    print("Vous la trouverez dans le dossier \"tirage_equipes\".")
+                    input("Appuyez sur Entrée pour quitter le programme.")
+                else: # reponse == "n"
+                    print("Répartition des équipes annulées.")
+                    input("Appuyez sur Entrée pour mettre fin au programme.")
+            else: # le dossier "./tirage_equipes" n'existe pas
+                repartition_equipes()
+                afficher_menu = False
+
+                
+                print("Noms des équipes utilisés pour ce tirage :")
+                print(noms_equipes[0:nb_equipes])
+                print('')
+
+                print("Répartition des équipes effectuée.")
+                print("Vous la trouverez dans le dossier \"tirage_equipes\".")
+                input("Appuyez sur Entrée pour quitter le programme.")
+
 
     return None
 
