@@ -1,7 +1,11 @@
 import random
 import csv
+import numpy
+import pandas as pd
+import xlsxwriter
 from pathlib import Path
 from glob import glob
+import shutil
 import os
 import sys
 
@@ -18,7 +22,7 @@ fichier_eleves = ''
 # liste globale de toutes les équipes
 toutes_eq = []
 
-# liste des élèves du fichier csv
+# liste des élèves du fichier xlsx
 liste_eleves = []
 
 # liste éventuelle des élèves à enlever du tirage
@@ -27,7 +31,8 @@ liste_eleves_dispenses = []
 # liste des noms des équipes, récupérée dans file_noms_eq
 noms_equipes = []
 path_noms_eq = Path('./noms_equipes/')
-file_noms_eq = Path(f'{path_noms_eq}/noms_equipes.csv')
+file_noms_eq = Path(f'{path_noms_eq}/noms_equipes.xlsx')
+print(file_noms_eq)
 # liste des noms d'équipe par défaut si absence de spécification par l'utilisateur
 liste_noms_eq = ['jaune','rouge','bleu','vert','violet','orange','blanc','noir','rose','gris']
 
@@ -48,6 +53,41 @@ def renommer_equipe(numero_equipe):
     if int(numero_equipe[6:]) in liste_numeros:
         numero_equipe = noms_equipes[int(numero_equipe[6:])-1]
     return numero_equipe
+
+def generer_xlsx(WB: xlsxwriter.Workbook, DF: pd.DataFrame, ExcelSheetName='Sheet1'):
+    ''' Récupère les données du dataframe pandas pour générer un fichier Excel mis en page.\n
+    Gère automatiquement les largeurs de colonnes et met en place les autofiltres.\n
+    Retourne un Workbook XlsxWriter à clôturer (en cas de feuilles multiples). \n
+    ExcelSheetName (facultatif) : str. Permet de donner un nom à la feuille dans le fichier Excel.'''
+    DF_list = DF.values.tolist()
+    DF_headers = DF.columns.values.tolist()
+    WS = WB.add_worksheet(ExcelSheetName)
+    
+    # règles de mise en forme des headers
+    bold_red = WB.add_format({'bold': 1,'color':'red'})
+    
+    row=0
+    col=0
+
+    # on écrit les headers mis en forme, avec autofiltre
+    WS.write_row(row,col,DF_headers,bold_red)
+    row += 1
+    WS.autofilter(0,0,0,len(DF_headers)-1)
+
+    # on ajuste la largeur de colonne selon le plus long str (header compris)
+    for i in range(0,len(DF_list[0])):
+        l = 0
+        for eleve in DF_list:
+            if (len(eleve[i]) > l or len(DF_headers[i]) > l):
+                l = max(len(DF_headers[i]),len(eleve[i]))
+        WS.set_column(i,i,width=l+2)
+
+    # on écrit les joueurs de la liste 
+    for eleve in DF_list:
+        WS.write_row(row,0,eleve)
+        row+=1
+
+    return WB
 
 def gerer_eleves_dispenses():
     ''' Affiche le menu de gestion des dispenses/absences d'élèves avant tirage '''
@@ -93,11 +133,11 @@ def gerer_eleves_dispenses():
 def ajouter_dispense():
     ''' Ajoute un élève à la liste de ceux qu'il ne faut pas compter au tirage '''
 
-    if liste_eleves_dispenses:
+    if len(liste_eleves_dispenses) != 0:
         print('')
         print("  |  Élèves déjà dispensés du tirage :")
         for eleve in liste_eleves_dispenses:
-            print(f"  |    -- {eleve[1].capitalize()} {eleve[0].upper()}")
+            print(f"  |    -- {eleve[1]} {eleve[0].upper()}")
             
     # on consulte la liste de tous les élèves
     dispense_locale = []
@@ -105,22 +145,29 @@ def ajouter_dispense():
     prenom_eleve = input("Veuillez entrer le prénom (ou les premières lettres du prénom) d'un élève à dispenser du tirage : ")
     while not prenom_eleve.isalpha():
         prenom_eleve = input("Veuillez ne pas entrer de chiffres. Prénom (ou début de prénom) d'un élève à dispenser ? ")
-    prenom_eleve = prenom_eleve.capitalize()
 
-    aff_msg = True
     for eleve in liste_eleves:
-        if prenom_eleve in eleve[1][0:].capitalize():
+        if prenom_eleve in eleve[1][0:]:
             if eleve not in liste_eleves_dispenses:
                 dispense_locale.append(eleve)
+            else:
+                print('')
+                if eleve[2] == 'F':
+                    print("  --  Cette élève est déjà dispensée.")
+                elif eleve[2] in ['G','M']:
+                    print("  --  Cet élève est déjà dispensé.")
+                else:
+                    print("  -- erreur : mauvais sexe renseigné pour cet/cette élève.")
+                print('')
     
-    liste_prenoms = [eleve[1] for eleve in liste_eleves]
-    test_prenom = [str for str in liste_prenoms if prenom_eleve in str]
+    liste_prenoms = [eleve[1] for eleve in liste_eleves[1:]]
+    test_prenom = [s for s in liste_prenoms if prenom_eleve in s]
     if not test_prenom:
         print('')
-        print('  --  Aucun·e élève trouvé·e pour cette saisie.')
+        print('  --  Aucun élève trouvé pour cette saisie.')
         print('')
 
-    if dispense_locale:
+    if len(dispense_locale) != 0:
         if len(dispense_locale) == 1:
             liste_eleves_dispenses.append(dispense_locale[0])
             print('')
@@ -133,19 +180,11 @@ def ajouter_dispense():
                 print(f"  {dispense_locale.index(eleve)+1} - {eleve[1]} {eleve[0].upper()}")
             print('')
             
-            numeros_ajout = [str(i) for i in range(1,(len(dispense_locale)+1))]
+            numeros_ajout = [i for i in range(1,(len(dispense_locale)+1))]
             consigne = input(f"Quel élève ajouter aux élèves dispensés ? {numeros_ajout}")
-            while consigne not in numeros_ajout:
+            while int(consigne) not in numeros_ajout:
                 consigne = input(f"Veuillez répondre parmi {numeros_ajout} : ")
-            eleve_disp = dispense_locale[int(consigne)-1]
-            liste_eleves_dispenses.append(eleve_disp)
-            print('')
-            if eleve_disp[2] == 'F':
-                print(f'  --  {eleve_disp[1].capitalize()} {eleve_disp[0].upper()} ajoutée à la liste des élèves dispensés.')
-            elif eleve_disp[2] in ['G','M']:
-                print(f'  --  {eleve_disp[1].capitalize()} {eleve_disp[0].upper()} ajouté à la liste des élèves dispensés.')
-            else:
-                print(f'  --  {eleve_disp[1].capitalize()} {eleve_disp[0].upper()} ajouté·e à la liste des élèves dispensés.')
+            liste_eleves_dispenses.append(dispense_locale[int(consigne)-1])
             
     return None
 
@@ -202,11 +241,12 @@ def attribuer_joueur(liste_joueurs):
         numero_equipe = (f'équipe {index_eq+1}') # on évite une "équipe 0"
         joueur.append(numero_equipe)
         toutes_eq[index_eq].append(joueur)
+    
     return None
 
-def repartition_equipes():
+def repartition_equipes(liste_eleves):
     ''' Génère pour chaque classe les listes de filles et de garçons à répartir dans les équipes,\n
-    en mélange l'ordre aléatoirement, puis effectue l'attribution. '''
+    en mélange l'ordre aléatoirement, puis effectue l'attribution dans les fichiers Excel. '''
 
     if liste_eleves_dispenses:
         print('')
@@ -222,9 +262,9 @@ def repartition_equipes():
         print('')
 
     liste_profs = []
-    for eleve in liste_eleves[1:]:
-        liste_profs.append(eleve[3])
-    liste_profs = list(set(liste_profs)) # on supprime les doublons de la liste des profs
+    for eleve in liste_eleves:
+        if eleve[3] not in liste_profs:
+            liste_profs.append(eleve[3])
 
     # Pour chaque classe, on crée deux listes (filles et garçons)
     # sur lesquelles on effectue la fonction "attribuer_joueurs"
@@ -232,7 +272,7 @@ def repartition_equipes():
         liste_filles = []
         liste_garcons = []
 
-        for eleve in liste_eleves[1:]:
+        for eleve in liste_eleves:
             if eleve[3] == liste_profs[x] and eleve[2] == 'F':
                 liste_filles.append(eleve)
             elif eleve[3] == liste_profs[x] and eleve[2] in ['G','M']:
@@ -241,7 +281,7 @@ def repartition_equipes():
                 random_gender = random.choice(['filles','garçons'])
                 if random_gender == "filles":
                     liste_filles.append(eleve)
-                else: # random_genr == "garçons"
+                else: # random_gender == "garçons"
                     liste_garcons.append(eleve)
                 print('  /!\\   /!\\   /!\\   /!\\   /!\\   /!\\')
                 print('  ---------------------------------------')
@@ -259,64 +299,58 @@ def repartition_equipes():
 
     # nettoyage éventuel des fichiers du dossier "tirage_equipes"
     pth = './tirage_equipes/'
-    pth_eq = './tirage_equipes/par_equipe/'
-    pth_cl = './tirage_equipes/par_classe/'
-    tirages_profs = glob(pth_cl + '*.*')
-    tirage_eq = glob(pth_eq + '*.*')
-    for fichier in tirages_profs:
-        os.remove(fichier)
-    for fichier in tirage_eq:
-        os.remove(fichier)
+    tirage = glob(pth+'*')
 
-    # création éventuelle des dossiers pour placer les tirages
+    for fichier in tirage:
+        if os.path.isfile(fichier):
+            os.remove(fichier)
+        else:
+            shutil.rmtree(fichier) 
+
+    # création éventuelle du dossier pour placer les tirages
     path = Path('./tirage_equipes')
     path.mkdir(exist_ok=True)
-    path = Path('./tirage_equipes/par_classe')
-    path.mkdir(exist_ok=True)
-    path = Path('./tirage_equipes/par_equipe')
-    path.mkdir(exist_ok=True)
 
-    # création du csv global
-    with open('./tirage_equipes/TIRAGE_GLOBAL.csv', 'w', newline='',encoding=encodage) as equipes_attribuees:
-        scripteur = csv.writer(equipes_attribuees, delimiter=';')
-        scripteur.writerow(['nom','prenom','equipe','prof'])
-        for equipe in toutes_eq:
-            for eleve in equipe:
-                scripteur.writerow([eleve[0].upper(),eleve[1],renommer_equipe(eleve[4]),eleve[3]])
-    
-    # création des csv par classe
-    for x in range(0,len(liste_profs)):
-        with open(f'./tirage_equipes/par_classe/tirage_{liste_profs[x]}.csv', 'w', newline='',encoding=encodage) as equipes_attribuees:
-            scripteur = csv.writer(equipes_attribuees, delimiter=';')
-            scripteur.writerow([f'CLASSE DE {liste_profs[x]}'])
-            scripteur.writerow([''])
-            scripteur.writerow(['nom','prenom','equipe'])
-            scripteur.writerow([''])
-            for equipe in toutes_eq:
-                for eleve in equipe:
-                    if eleve[3] == liste_profs[x]:
-                        scripteur.writerow([eleve[0].upper(),eleve[1],renommer_equipe(eleve[4])])
-
-    # récupération des noms des équipes pour créer les fichiers csv adéquats
-    liste_equipes = []
+    lj_att = [] #liste complète des joueurs avec équipes renommées et attribuées
     for equipe in toutes_eq:
-        for eleve in equipe:
-            if renommer_equipe(eleve[4]) not in liste_equipes:
-                liste_equipes.append(renommer_equipe(eleve[4]))
+        for joueur in equipe:
+            joueur[4] = renommer_equipe(joueur[4])
+            lj_att.append(joueur)
+    lj_att.sort()
 
-    # création des csv par equipe
-    for x in range(0,len(liste_equipes)):
-        with open(f'./tirage_equipes/par_equipe/tirage_{liste_equipes[x]}.csv', 'w', newline='',encoding=encodage) as equipes_attribuees:
-            scripteur = csv.writer(equipes_attribuees, delimiter=';')
-            scripteur.writerow([f'ÉQUIPE "{liste_equipes[x].upper()}"'])
-            scripteur.writerow([''])
-            scripteur.writerow(['nom','prenom','prof'])
-            scripteur.writerow([''])
-            for equipe in toutes_eq:
-                equipe.sort()
-                for eleve in equipe:
-                    if renommer_equipe(eleve[4]) == liste_equipes[x]:
-                        scripteur.writerow([eleve[0].upper(),eleve[1],eleve[3]])
+    
+    DF_listejoueurs = pd.DataFrame(lj_att,columns=['NOM','Prénom','Sexe','Prof','Équipe'])
+
+
+    # création du fichier Excel avec tirage global (une seule feuille)
+    WB = xlsxwriter.Workbook('./tirage_equipes/tirage_global.xlsx')
+    DF_listejoueurs = DF_listejoueurs[['NOM','Prénom','Équipe','Prof']]
+    DF_listejoueurs = DF_listejoueurs.sort_values(by=['Prof','Équipe'])
+    generer_xlsx(WB,DF_listejoueurs)
+    WB.close()
+
+    # création du fichier Excel avec tirage par profs (une feuille par prof)
+    WB = xlsxwriter.Workbook('./tirage_equipes/tirage_profs.xlsx')
+    for prof in liste_profs:
+        DF_ListeJoueursParProf = DF_listejoueurs[DF_listejoueurs['Prof']==prof]
+        DF_ListeJoueursParProf = DF_ListeJoueursParProf[['NOM','Prénom','Équipe']]
+        generer_xlsx(WB,DF_ListeJoueursParProf,prof)
+    WB.close()
+
+    # on récupère une liste des noms d'équipes
+    leq = []
+    for eleve in lj_att:
+        if eleve[4] not in leq:
+            leq.append(eleve[4])
+    # leq = list(set(leq)) # on supprime les doublons de la liste des noms d'équipes
+    
+    # création du fichier Excel avec tirage par équipes (une feuille par équipe)
+    WB = xlsxwriter.Workbook('./tirage_equipes/tirage_équipes.xlsx')
+    for nom_eq in leq:
+        DF_ListeJoueursParEquipe = DF_listejoueurs[DF_listejoueurs['Équipe']==nom_eq]
+        DF_ListeJoueursParEquipe = DF_ListeJoueursParEquipe[['NOM','Prénom','Prof']]
+        generer_xlsx(WB,DF_ListeJoueursParEquipe,nom_eq)
+    WB.close()
 
 def programme_principal():
     ''' Interface de dialogue avec l'utilisateur, permettant de définir le nombre d'équipes,\n
@@ -331,15 +365,9 @@ def programme_principal():
         equipe = []
         toutes_eq.append(equipe)
 
-    with open(f'./{fichier_eleves}',newline='') as db_eleves:
-        lecteur = csv.reader(db_eleves,delimiter=';')
-        x=0
-        for eleve in lecteur:
-            if x>0:
-                liste_eleves.append(eleve)
-            x+=1 # on passe l'en-tête du csv
-        print(f"Nombres d'élèves trouvés dans le fichier : {len(liste_eleves)}")
-
+    # récupérer les noms d'élèves renseignés et les ajouter à la liste liste_eleves[] 
+    liste_eleves = pd.read_excel('liste eleves_UTF-8.xlsx', index_col=None)
+    liste_eleves = liste_eleves.values.tolist() # chaque objet récupéré avec tolist() est une liste
 
     afficher_menu = True
     reponse = '1'
@@ -382,7 +410,7 @@ def programme_principal():
                     reponse = input('Veuillez répondre "o" ou "n" : ')
                 
                 if reponse == "o":
-                    repartition_equipes()
+                    repartition_equipes(liste_eleves)
                     afficher_menu = False
 
                     
@@ -397,7 +425,7 @@ def programme_principal():
                     print("Répartition des équipes annulées.")
                     input("Appuyez sur Entrée pour mettre fin au programme.")
             else: # le dossier "./tirage_equipes" n'existe pas
-                repartition_equipes()
+                repartition_equipes(liste_eleves)
                 afficher_menu = False
 
                 
@@ -412,37 +440,37 @@ def programme_principal():
 
     return None
 
-#Vérification de la présence d'un fichier csv à traiter
+#Vérification de la présence d'un fichier xlsx à traiter
 pth ="./"
-liste_fichiers_csv = glob(pth+"*.csv")
+liste_fichiers_xlsx = glob(pth+"*.xlsx")
 
-if not(liste_fichiers_csv):
-    print("Aucune liste d'élèves à traiter (fichier csv) trouvée dans le répertoire.")
+if not(liste_fichiers_xlsx):
+    print("Aucune liste d'élèves à traiter (fichier xlsx) trouvée dans le répertoire.")
     print("Veuillez fournir une liste d'élèves avant de lancer ce programme.")
     input("Appuyez sur Entrée pour quitter.")
 
-else: # il y a bien un ou plusieurs fichiers csv dans le répertoire racine
+else: # il y a bien un ou plusieurs fichiers xlsx dans le répertoire racine
 
-    if len(liste_fichiers_csv)>1:
-        print("Il y a plusieurs fichiers csv dans le répertoire :")
+    if len(liste_fichiers_xlsx)>1:
+        print("Il y a plusieurs fichiers xlsx dans le répertoire :")
         print('')
-        numeros_fichiers = [i for i in range(1,len(liste_fichiers_csv)+1)]
-        for fichier in liste_fichiers_csv:
-            print(f"    {(liste_fichiers_csv.index(fichier))+1} --  {fichier[2:]}")
+        numeros_fichiers = [i for i in range(1,len(liste_fichiers_xlsx)+1)]
+        for fichier in liste_fichiers_xlsx:
+            print(f"    {(liste_fichiers_xlsx.index(fichier))+1} --  {fichier[2:]}")
         print('')
         choix_f_el = input(f"Veuillez indiquer celui qui contient la liste des élèves parmi {numeros_fichiers} : ")
         while int(choix_f_el) not in numeros_fichiers:
             print('')
             choix_f_el = input(f"Veuillez indiquer un choix parmi {numeros_fichiers} : ")
-        fichier_eleves = f'{liste_fichiers_csv[int(choix_f_el)-1][2:]}'
+        fichier_eleves = f'{liste_fichiers_xlsx[int(choix_f_el)-1][2:]}'
         print('')
         print(f"  --  Fichier conservé pour la répartition : \"{fichier_eleves}\"")
         print('')
 
     else:
-        print(f"Le fichier \"{liste_fichiers_csv[0][2:]}\" a été trouvé dans le répertoire.")
+        print(f"Le fichier \"{liste_fichiers_xlsx[0][2:]}\" a été trouvé dans le répertoire.")
         print("Il sera utilisé comme source de données des élèves pour le tirage.")
-        fichier_eleves = f'{liste_fichiers_csv[0][2:]}'
+        fichier_eleves = f'{liste_fichiers_xlsx[0][2:]}'
 
     # gestion du fichier contenant les noms des équipes 
 
@@ -458,14 +486,27 @@ else: # il y a bien un ou plusieurs fichiers csv dans le répertoire racine
         print('   ----------------------------')
         print('')
         # créer le fichier des noms d'équipes par défaut
-        with open(file_noms_eq,'w',newline='',encoding=encodage) as noms_eq_defaut:
-            scripteur = csv.writer(noms_eq_defaut)
-            for nom in liste_noms_eq:
-                scripteur.writerow([nom])
-        
-    with open(file_noms_eq,'r',newline='',encoding=encodage) as n_eq:
-        lecteur = csv.reader(n_eq)
-        for nom in lecteur:
-            noms_equipes.append(nom[0])
+
+        # créer un data frame pandas à partir de la liste par défaut des noms d'équipes,
+        # puis créer le fichier Excel et y insérer le data frame
+        df = pd.DataFrame({'Data':liste_noms_eq})
+        writer = pd.ExcelWriter(file_noms_eq)
+        df.to_excel(writer, sheet_name='sheet_test', header=False, index=False)
+        writer.save()
+
+    # récupérer les noms d'équipes renseignés et les ajouter à la liste noms_equipes[] 
+    noms_eq_df = pd.read_excel(file_noms_eq, header=None, index_col=None)
+    noms_eq_df = noms_eq_df.values.tolist() # chaque objet récupéré avec tolist() est une liste
+
+    # on recrée donc une liste simple à partir de ces données
+    for i in range(0,len(noms_eq_df)):
+        noms_equipes.append(noms_eq_df[i][0])
+    print(noms_equipes)
+
+
+    # with open(file_noms_eq,'r',newline='',encoding=encodage) as n_eq:
+    #     lecteur = csv.reader(n_eq)
+    #     for nom in lecteur:
+    #         noms_equipes.append(nom[0])
     
     programme_principal()
