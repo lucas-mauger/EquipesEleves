@@ -139,7 +139,6 @@ def ajouter_dispense():
         for eleve in liste_eleves_dispenses:
             print(f"  |    -- {eleve[1]} {eleve[0].upper()}")
             
-    # on consulte la liste de tous les élèves
     dispense_locale = []
     print('')
     prenom_eleve = input("Veuillez entrer le prénom (ou les premières lettres du prénom) d'un élève à dispenser du tirage : ")
@@ -152,13 +151,7 @@ def ajouter_dispense():
                 dispense_locale.append(eleve)
             else:
                 print('')
-                if eleve[2] == 'F':
-                    print("  --  Cette élève est déjà dispensée.")
-                elif eleve[2] in ['G','M']:
-                    print("  --  Cet élève est déjà dispensé.")
-                else:
-                    print("  -- erreur : mauvais sexe renseigné pour cet/cette élève.")
-                print('')
+                print("  --  Cet·te élève est déjà dispensé·e.")
     
     liste_prenoms = [eleve[1] for eleve in liste_eleves[1:]]
     test_prenom = [s for s in liste_prenoms if prenom_eleve in s]
@@ -326,7 +319,7 @@ def repartition_equipes(liste_eleves):
     WB = xlsxwriter.Workbook('./tirage_equipes/tirage_global.xlsx')
     DF_listejoueurs = DF_listejoueurs[['NOM','Prénom','Équipe','Prof']]
     DF_listejoueurs = DF_listejoueurs.sort_values(by=['Prof','Équipe'])
-    generer_xlsx(WB,DF_listejoueurs)
+    generer_xlsx(WB,DF_listejoueurs,'tirage général')
     WB.close()
 
     # création du fichier Excel avec tirage par profs (une feuille par prof)
@@ -335,14 +328,13 @@ def repartition_equipes(liste_eleves):
         DF_ListeJoueursParProf = DF_listejoueurs[DF_listejoueurs['Prof']==prof]
         DF_ListeJoueursParProf = DF_ListeJoueursParProf[['NOM','Prénom','Équipe']]
         generer_xlsx(WB,DF_ListeJoueursParProf,prof)
-    WB.close()
+    WB.close() # on clôt seulement après avoir ajouté toutes les feuilles
 
     # on récupère une liste des noms d'équipes
     leq = []
     for eleve in lj_att:
         if eleve[4] not in leq:
             leq.append(eleve[4])
-    # leq = list(set(leq)) # on supprime les doublons de la liste des noms d'équipes
     
     # création du fichier Excel avec tirage par équipes (une feuille par équipe)
     WB = xlsxwriter.Workbook('./tirage_equipes/tirage_équipes.xlsx')
@@ -350,7 +342,7 @@ def repartition_equipes(liste_eleves):
         DF_ListeJoueursParEquipe = DF_listejoueurs[DF_listejoueurs['Équipe']==nom_eq]
         DF_ListeJoueursParEquipe = DF_ListeJoueursParEquipe[['NOM','Prénom','Prof']]
         generer_xlsx(WB,DF_ListeJoueursParEquipe,nom_eq)
-    WB.close()
+    WB.close() # on clôt seulement après avoir ajouté toutes les feuilles
 
 def programme_principal():
     ''' Interface de dialogue avec l'utilisateur, permettant de définir le nombre d'équipes,\n
@@ -366,8 +358,9 @@ def programme_principal():
         toutes_eq.append(equipe)
 
     # récupérer les noms d'élèves renseignés et les ajouter à la liste liste_eleves[] 
-    liste_eleves = pd.read_excel('liste eleves_UTF-8.xlsx', index_col=None)
-    liste_eleves = liste_eleves.values.tolist() # chaque objet récupéré avec tolist() est une liste
+    DF_liste_eleves = pd.read_excel(fichier_eleves, index_col=None).values.tolist()
+    for eleve in DF_liste_eleves:
+        liste_eleves.append(eleve)
 
     afficher_menu = True
     reponse = '1'
@@ -501,11 +494,5 @@ else: # il y a bien un ou plusieurs fichiers xlsx dans le répertoire racine
     for i in range(0,len(noms_eq_df)):
         noms_equipes.append(noms_eq_df[i][0])
     print(noms_equipes)
-
-
-    # with open(file_noms_eq,'r',newline='',encoding=encodage) as n_eq:
-    #     lecteur = csv.reader(n_eq)
-    #     for nom in lecteur:
-    #         noms_equipes.append(nom[0])
     
     programme_principal()
