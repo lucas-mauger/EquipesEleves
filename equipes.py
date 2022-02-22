@@ -473,7 +473,6 @@ else: # il y a bien un ou plusieurs fichiers xlsx dans le répertoire racine
         fichier_eleves = f'{liste_fichiers_xlsx[0][2:]}'
 
     # gestion du fichier contenant les noms des équipes 
-
     #vérifier la présence du dossier "nom_equipes", créer si inexistant
     if not path_noms_eq.exists():
         path_noms_eq.mkdir()
