@@ -133,7 +133,7 @@ def gerer_eleves_dispenses():
 def ajouter_dispense():
     ''' Ajoute un élève à la liste de ceux qu'il ne faut pas compter au tirage '''
 
-    if len(liste_eleves_dispenses) != 0:
+    if liste_eleves_dispenses:
         print('')
         print("  |  Élèves déjà dispensés du tirage :")
         for eleve in liste_eleves_dispenses:
@@ -145,8 +145,11 @@ def ajouter_dispense():
     while not prenom_eleve.isalpha():
         prenom_eleve = input("Veuillez ne pas entrer de chiffres. Prénom (ou début de prénom) d'un élève à dispenser ? ")
 
+    # on réduit le str à des minuscules pour éviter de rater les majuscules lors de la recherche
+    # prenom_eleve = prenom_eleve.lower()
+
     for eleve in liste_eleves:
-        if prenom_eleve in eleve[1][0:]:
+        if prenom_eleve.lower() in eleve[1][0:].lower():
             if eleve not in liste_eleves_dispenses:
                 dispense_locale.append(eleve)
             else:
