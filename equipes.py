@@ -34,7 +34,7 @@ path_noms_eq = Path('./noms_equipes/')
 file_noms_eq = Path(f'{path_noms_eq}/noms_equipes.xlsx')
 print(file_noms_eq)
 # liste des noms d'équipe par défaut si absence de spécification par l'utilisateur
-liste_noms_eq = ['jaune','rouge','bleu','vert','violet','orange','blanc','noir','rose','gris']
+DefaultTeamNames = ['jaune','rouge','bleu','vert','violet','orange','blanc','marron','rose','gris']
 
 def index_plus_petite_equipe(liste_equipes) :
     ''' Retourne l'index de l'équipe comptant le moins de joueurs '''
@@ -55,14 +55,23 @@ def renommer_equipe(numero_equipe):
     return numero_equipe
 
 def generer_xlsx(WB: xlsxwriter.Workbook, DF: pd.DataFrame, ExcelSheetName='Sheet1'):
-    ''' Récupère les données du dataframe pandas pour générer un fichier Excel mis en page.\n
+    ''' Récupère les données du dataframe pandas pour ajouter une feuille Excel mise en page,\n
+    dans le xlsxwriter.Workbook entré en paramètre.\n
     Gère automatiquement les largeurs de colonnes et met en place les autofiltres.\n
     Retourne un Workbook XlsxWriter à clôturer (en cas de feuilles multiples). \n
-    ExcelSheetName (facultatif) : str. Permet de donner un nom à la feuille dans le fichier Excel.'''
-    DF_list = DF.values.tolist()
-    DF_headers = DF.columns.values.tolist()
-    WS = WB.add_worksheet(ExcelSheetName)
+    ExcelSheetName (facultatif) : str. Permet de spécifier le nom de la feuille dans le fichier Excel.'''
     
+    # On vérifie que 'Équipes' fait partie des headers du dataframe
+    # Le cas échéant, on crée une sous-liste des noms d'équipe par index
+    TeamsIndex = []
+    if 'Équipe' in DF.columns.values.tolist(): 
+        TeamsIndex = DF["Équipe"].tolist()
+
+    PlayersList = DF.values.tolist()
+    headers = DF.columns.values.tolist()
+    WS = WB.add_worksheet(ExcelSheetName)
+    # Pour générer des fonds de cellule colorés, il faut récupérer les index
+
     # règles de mise en forme des headers
     bold_red = WB.add_format({'bold': 1,'color':'red'})
     
@@ -70,21 +79,30 @@ def generer_xlsx(WB: xlsxwriter.Workbook, DF: pd.DataFrame, ExcelSheetName='Shee
     col=0
 
     # on écrit les headers mis en forme, avec autofiltre
-    WS.write_row(row,col,DF_headers,bold_red)
+    WS.write_row(row,col,headers,bold_red)
     row += 1
-    WS.autofilter(0,0,0,len(DF_headers)-1)
+    WS.autofilter(0,0,0,len(headers)-1)
 
     # on ajuste la largeur de colonne selon le plus long str (header compris)
-    for i in range(0,len(DF_list[0])):
+    for i in range(0,len(PlayersList[0])):
         l = 0
-        for eleve in DF_list:
-            if (len(eleve[i]) > l or len(DF_headers[i]) > l):
-                l = max(len(DF_headers[i]),len(eleve[i]))
+        for eleve in PlayersList:
+            if (len(eleve[i]) > l or len(headers[i]) > l):
+                l = max(len(headers[i]),len(eleve[i]))
         WS.set_column(i,i,width=l+2)
 
+    ColorList = ['yellow','red','blue','green','purple','orange','white','brown','pink','grey']
+
     # on écrit les joueurs de la liste 
-    for eleve in DF_list:
-        WS.write_row(row,0,eleve)
+    for eleve in PlayersList:
+        if TeamsIndex:
+            t_id = TeamsIndex[PlayersList.index(eleve)] # retourne le nom de l'équipe associée à l'élève
+            print(noms_equipes.index(t_id))
+            color_select = ColorList[noms_equipes.index(t_id)]
+            bg_color = WB.add_format({'bg_color':f'{color_select}'})
+            WS.write_row(row,0,eleve,bg_color) # appliquer un cell_format selon le nom de l'équipe
+        else :
+            WS.write_row(row,0,eleve)
         row+=1
 
     return WB
@@ -484,7 +502,7 @@ else: # il y a bien un ou plusieurs fichiers xlsx dans le répertoire racine
 
         # créer un data frame pandas à partir de la liste par défaut des noms d'équipes,
         # puis créer le fichier Excel et y insérer le data frame
-        df = pd.DataFrame({'Data':liste_noms_eq})
+        df = pd.DataFrame({'Data':DefaultTeamNames})
         writer = pd.ExcelWriter(file_noms_eq)
         df.to_excel(writer, sheet_name='sheet_test', header=False, index=False)
         writer.save()
