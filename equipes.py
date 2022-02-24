@@ -218,7 +218,7 @@ def retirer_dispense():
         eleve_supprime = liste_eleves_dispenses[int(reponse)-1]
         liste_eleves_dispenses.remove(eleve_supprime)
         print('')
-        print(f"  --  L'élève {eleve_supprime[1]} {eleve_supprime[0]} a été supprimé(e) de la liste des élèves à dispenser du tirage.")
+        print(f"  --  L'élève {eleve_supprime[1]} {eleve_supprime[0].upper()} a été supprimé(e) de la liste des élèves à dispenser du tirage.")
 
     # s'il n'y a pas d'élève dans la liste des dispensés, on sort de la boucle
     else :
