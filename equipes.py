@@ -1,20 +1,12 @@
 import random
-import csv
 import numpy
+import os
 import pandas as pd
 import xlsxwriter
 from pathlib import Path
 from glob import glob
 import shutil
-import os
 import sys
-
-# on checke sur quel OS on tourne pour éviter le problème d'encodage utf-8/ansi
-# évite en principe les problèmes d'ouverture sous Excel/Windows
-my_os = sys.platform
-encodage='utf-8'
-if my_os=="win32":
-    encodage='ansi'
 
 # nom du fichier utilisé comme base de données des élèves
 fichier_eleves = ''
@@ -34,7 +26,7 @@ path_noms_eq = Path('./noms_equipes/')
 file_noms_eq = Path(f'{path_noms_eq}/noms_equipes.xlsx')
 print(file_noms_eq)
 # liste des noms d'équipe par défaut si absence de spécification par l'utilisateur
-DefaultTeamNames = ['jaune','rouge','bleu','vert','violet','orange','blanc','marron','rose','gris']
+DefaultTeamNames = ['jaune','rouge','bleu','vert','violet','orange','blanc','noir','rose','gris']
 
 def index_plus_petite_equipe(liste_equipes) :
     ''' Retourne l'index de l'équipe comptant le moins de joueurs '''
@@ -57,7 +49,7 @@ def renommer_equipe(numero_equipe):
 def generer_xlsx(WB: xlsxwriter.Workbook, DF: pd.DataFrame, ExcelSheetName='Sheet1'):
     ''' Récupère les données du dataframe pandas pour ajouter une feuille Excel mise en page,\n
     dans le xlsxwriter.Workbook entré en paramètre.\n
-    Gère automatiquement les largeurs de colonnes et met en place les autofiltres.\n
+    Gère automatiquement les largeurs de colonnes, couleurs et met en place les autofiltres.\n
     Retourne un Workbook XlsxWriter à clôturer (en cas de feuilles multiples). \n
     ExcelSheetName (facultatif) : str. Permet de spécifier le nom de la feuille dans le fichier Excel.'''
     
@@ -70,7 +62,6 @@ def generer_xlsx(WB: xlsxwriter.Workbook, DF: pd.DataFrame, ExcelSheetName='Shee
     PlayersList = DF.values.tolist()
     headers = DF.columns.values.tolist()
     WS = WB.add_worksheet(ExcelSheetName)
-    # Pour générer des fonds de cellule colorés, il faut récupérer les index
 
     # règles de mise en forme des headers
     bold_red = WB.add_format({'bold': 1,'color':'red'})
@@ -91,18 +82,28 @@ def generer_xlsx(WB: xlsxwriter.Workbook, DF: pd.DataFrame, ExcelSheetName='Shee
                 l = max(len(headers[i]),len(eleve[i]))
         WS.set_column(i,i,width=l+2)
 
-    ColorList = ['yellow','red','blue','green','purple','orange','white','brown','pink','grey']
+    ColorList = ['yellow','red','blue','green','purple','orange','white','black','pink','gray']
+    WhiteFont_ColorList = ['blue','purple','black','green']
 
     # on écrit les joueurs de la liste 
     for eleve in PlayersList:
         if TeamsIndex:
             t_id = TeamsIndex[PlayersList.index(eleve)] # retourne le nom de l'équipe associée à l'élève
-            print(noms_equipes.index(t_id))
-            color_select = ColorList[noms_equipes.index(t_id)]
-            bg_color = WB.add_format({'bg_color':f'{color_select}'})
+            color_select = ColorList[noms_equipes.index(t_id)] # retourne la couleur associée à l'équipe
+            # selon le bg_color choisi, on passe ou non le font_color en blanc
+            if color_select in WhiteFont_ColorList:
+                bg_color = WB.add_format({'bg_color':f'{color_select}', 'font_color':'white'})
+            else:
+                bg_color = WB.add_format({'bg_color':f'{color_select}'})
+
             WS.write_row(row,0,eleve,bg_color) # appliquer un cell_format selon le nom de l'équipe
-        else :
-            WS.write_row(row,0,eleve)
+        else : # on est en train d'écrire une feuille de joueurs par équipes
+            color_select = ColorList[noms_equipes.index(ExcelSheetName)]
+            if color_select in WhiteFont_ColorList:
+                bg_color = WB.add_format({'bg_color':f'{color_select}', 'font_color':'white'})
+            else:
+                bg_color = WB.add_format({'bg_color':f'{color_select}'})
+            WS.write_row(row,0,eleve,bg_color)
         row+=1
 
     return WB
@@ -494,7 +495,7 @@ else: # il y a bien un ou plusieurs fichiers xlsx dans le répertoire racine
         print('')
         print('   ----------------------------')
         print("   | Noms des équipes par défaut.")
-        print('   | Vous pouvez personnaliser les noms des équipes dans le fichier "noms_equipes.csv"')
+        print('   | Vous pouvez personnaliser les noms des équipes dans le fichier "noms_equipes.xlsx"')
         print('   | se situant dans le répertoire "/noms_equipes", puis recommencer un tirage, si vous le souhaitez.') 
         print('   ----------------------------')
         print('')
