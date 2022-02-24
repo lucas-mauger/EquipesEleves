@@ -84,26 +84,21 @@ def generer_xlsx(WB: xlsxwriter.Workbook, DF: pd.DataFrame, ExcelSheetName='Shee
 
     ColorList = ['yellow','red','blue','green','purple','orange','white','black','pink','gray']
     WhiteFont_ColorList = ['blue','purple','black','green']
+    color_select = ''
 
     # on écrit les joueurs de la liste 
     for eleve in PlayersList:
-        if TeamsIndex:
+        if TeamsIndex: # on écrit une feuille où la colonne "Équipe" apparaît
             t_id = TeamsIndex[PlayersList.index(eleve)] # retourne le nom de l'équipe associée à l'élève
             color_select = ColorList[noms_equipes.index(t_id)] # retourne la couleur associée à l'équipe
-            # selon le bg_color choisi, on passe ou non le font_color en blanc
-            if color_select in WhiteFont_ColorList:
-                bg_color = WB.add_format({'bg_color':f'{color_select}', 'font_color':'white'})
-            else:
-                bg_color = WB.add_format({'bg_color':f'{color_select}'})
-
-            WS.write_row(row,0,eleve,bg_color) # appliquer un cell_format selon le nom de l'équipe
         else : # on est en train d'écrire une feuille de joueurs par équipes
             color_select = ColorList[noms_equipes.index(ExcelSheetName)]
-            if color_select in WhiteFont_ColorList:
-                bg_color = WB.add_format({'bg_color':f'{color_select}', 'font_color':'white'})
-            else:
-                bg_color = WB.add_format({'bg_color':f'{color_select}'})
-            WS.write_row(row,0,eleve,bg_color)
+    
+        if color_select in WhiteFont_ColorList:
+            bg_color = WB.add_format({'bg_color':f'{color_select}', 'font_color':'white'})
+        else:
+            bg_color = WB.add_format({'bg_color':f'{color_select}'})
+        WS.write_row(row,0,eleve,bg_color) # appliquer un cell_format selon le nom de l'équipe
         row+=1
 
     return WB
