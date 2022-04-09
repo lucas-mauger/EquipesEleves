@@ -83,7 +83,7 @@ def generer_xlsx(WB: xlsxwriter.Workbook, DF: pd.DataFrame, ExcelSheetName='Shee
         WS.set_column(i,i,width=l+2)
 
     ColorList = ['yellow','red','blue','green','purple','orange','white','black','pink','gray']
-    WhiteFont_ColorList = ['blue','purple','black','green']
+    WhiteFont_ColorList = ['blue','purple','black','green','red']
     color_select = ''
 
     # on écrit les joueurs de la liste 
