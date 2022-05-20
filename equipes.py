@@ -1,7 +1,9 @@
+from email import header
 import random
 import numpy
 import os
 import pandas as pd
+from requests import head
 import xlsxwriter
 from pathlib import Path
 from glob import glob
@@ -77,9 +79,10 @@ def generer_xlsx(WB: xlsxwriter.Workbook, DF: pd.DataFrame, ExcelSheetName='Shee
     # on ajuste la largeur de colonne selon le plus long str (header compris)
     for i in range(0,len(PlayersList[0])):
         l = 0
+        llist = [len(headers[i])]
         for eleve in PlayersList:
-            if (len(eleve[i]) > l or len(headers[i]) > l):
-                l = max(len(headers[i]),len(eleve[i]))
+            llist.append(len(eleve[i]))
+        l = max(llist)
         WS.set_column(i,i,width=l+2)
 
     ColorList = ['yellow','red','blue','green','purple','orange','white','black','pink','gray']
