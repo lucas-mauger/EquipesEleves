@@ -166,7 +166,7 @@ def ajouter_dispense():
     # prenom_eleve = prenom_eleve.lower()
 
     for eleve in liste_eleves:
-        if prenom_eleve.lower() in eleve[1][0:].lower():
+        if prenom_eleve.lower() in eleve[1][0:len(prenom_eleve)].lower():
             if eleve not in liste_eleves_dispenses:
                 dispense_locale.append(eleve)
             else:
