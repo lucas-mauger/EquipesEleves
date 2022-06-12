@@ -148,19 +148,19 @@ def gerer_eleves_dispenses():
     return None
 
 def ajouter_dispense():
-    ''' Ajoute un élève à la liste de ceux qu'il ne faut pas compter au tirage '''
+    ''' Ajoute un·e élève à la liste de ceux qu'il ne faut pas compter au tirage '''
 
     if liste_eleves_dispenses:
         print('')
-        print("  |  Élèves déjà dispensés du tirage :")
+        print("  |  Élèves déjà dispensé·e·s du tirage :")
         for eleve in liste_eleves_dispenses:
             print(f"  |    -- {eleve[1]} {eleve[0].upper()}")
             
     dispense_locale = []
     print('')
-    prenom_eleve = input("Veuillez entrer le prénom (ou les premières lettres du prénom) d'un élève à dispenser du tirage : ")
+    prenom_eleve = input("Veuillez entrer le prénom (ou les premières lettres du prénom) d'un·e élève à dispenser du tirage : ")
     while not prenom_eleve.isalpha():
-        prenom_eleve = input("Veuillez ne pas entrer de chiffres. Prénom (ou début de prénom) d'un élève à dispenser ? ")
+        prenom_eleve = input("Veuillez ne pas entrer de chiffres. Prénom (ou début de prénom) d'un·e élève à dispenser ? ")
 
     # on réduit le str à des minuscules pour éviter de rater les majuscules lors de la recherche
     # prenom_eleve = prenom_eleve.lower()
@@ -173,31 +173,34 @@ def ajouter_dispense():
                 print('')
                 print("  --  Cet·te élève est déjà dispensé·e.")
     
-    liste_prenoms = [eleve[1] for eleve in liste_eleves[1:]]
-    test_prenom = [s for s in liste_prenoms if prenom_eleve in s]
+    liste_prenoms = [eleve[1].lower() for eleve in liste_eleves[1:]]
+    test_prenom = [s for s in liste_prenoms if prenom_eleve.lower() in s]
     if not test_prenom:
         print('')
-        print('  --  Aucun élève trouvé pour cette saisie.')
+        print('  --  Aucun·e élève trouvé·e pour cette saisie.')
         print('')
 
-    if len(dispense_locale) != 0:
+    if dispense_locale:
         if len(dispense_locale) == 1:
             liste_eleves_dispenses.append(dispense_locale[0])
             print('')
-            print("L'élève suivant(e) a été ajouté(e) à la liste des élèves dispensés :")
+            print("L'élève suivant·e a été ajouté·e à la liste des élèves dispensé·e·s :")
             print(f"  --  {dispense_locale[0][1]} {dispense_locale[0][0]}")
         elif len(dispense_locale) > 1:
             print('')
-            print("Les élèves suivants ont été trouvés pour cette saisie :")
+            print("Les élèves suivant·e·s ont été trouvé·e·s pour cette saisie :")
             for eleve in dispense_locale:
                 print(f"  {dispense_locale.index(eleve)+1} - {eleve[1]} {eleve[0].upper()}")
             print('')
-            
             numeros_ajout = [i for i in range(1,(len(dispense_locale)+1))]
             consigne = input(f"Quel élève ajouter aux élèves dispensés ? {numeros_ajout}")
             while int(consigne) not in numeros_ajout:
                 consigne = input(f"Veuillez répondre parmi {numeros_ajout} : ")
             liste_eleves_dispenses.append(dispense_locale[int(consigne)-1])
+            print("")
+            print("L'élève suivant·e a été ajouté·e à la liste des élèves dispensé·e·s :")
+            print(f"  --  {dispense_locale[int(consigne)-1][1].capitalize()} {dispense_locale[int(consigne)-1][0].upper()}")
+
             
     return None
 
@@ -235,12 +238,12 @@ def consulter_dispense():
 
     if len(liste_eleves_dispenses) != 0:
         print('')
-        print("  |  Liste des élèves dispensés du tirage :")
+        print("  |  Liste des élèves dispensé·e·s du tirage :")
         for eleve in liste_eleves_dispenses:
             print(f"  |    -- {eleve[1]} {eleve[0].upper()}")
     else :
         print('')
-        print("    -- Aucun élève dispensé pour l'instant.")
+        print("    -- Aucun·e élève dispensé·e pour l'instant.")
     
     return None
 
