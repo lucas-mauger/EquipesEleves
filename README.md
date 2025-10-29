@@ -43,7 +43,8 @@ Martin;Lucas;G;CM2
 - Encodage : UTF-8 (Mac/Linux) ou ANSI (Windows)
 - Colonne "prof" : nom du professeur ou classe (ex: "CM1", "6èmeB")
 
-Un fichier exemple avec des noms fictifs est disponible dans le dépôt.
+👍 Un fichier exemple avec des noms fictifs est disponible dans le dépôt 
+➡️ Ne pas hésiter à supprimer les élèves fictifs pour avoir un fichier avec la bonne structure
 
 ### 2. Lancer le script
 ```bash
