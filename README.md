@@ -1,29 +1,39 @@
-# EquipesEleves
-Script python permettant la génération aléatoire et paritaire d'équipes, notamment entre plusieurs classes.
+# 🏃‍♂️ Générateur d'équipes sportives équilibrées
 
-Le fonctionnement du script en soi consiste à être le plus simple possible : il suffit de placer un fichier csv (format exportable depuis n'importe quel logiciel de tableur type Excel/LibreOffice Calc) dans le même répertoire que le fichier du script, et de lancer ce dernier.
+> **Contexte :** Projet développé en 2021 pour automatiser la constitution d'équipes mixtes dans le cadre d'activités sportives inter-classes (75 élèves, 3 classes).
 
-Les renseignements fournis par le fichier csv doivent être organisés d'une certaine manière, comme dans le fichier "liste_eleves.csv" (version Windows ANSI ou UTF-8 pour Mac/Linux) disponible dans le dépot. Les noms disponibles dans le fichier fourni sur ce dépot sont évidemment totalement fictifs.
+## 🎯 Problème résolu
 
-**Il suffit de respecter la nomenclature suivante :
-  -> première ligne :
-  "nom" ; "prenom" ; "sexe" ; "prof"**
-  
-Puis de renseigner les informations des élèves. 
-Ce sont généralement des données aisément disponibles dans la plupart des écoles.
-Notez bien que renseigner une classe (type "CE1" ou "6èmeB") en lieu et place d'un nom de professeur est tout à fait envisageable.
+**Avant :** Constitution manuelle des équipes = 15-20min par séance, difficulté à garantir la parité et l'équilibre entre classes.
 
-Pour le reste, il suffit de lancer le script et de se laisser guider pour procéder au tirage aléatoire des équipes.
+**Après :** Génération automatique en < 1min, équipes aléatoires et équilibrées, export multi-formats (global/par classe/par équipe).
 
-Le résultat du tirage se trouvera dans un dossier "tirage_equipes" situé au même endroit que le fichier du script. Il contient le résultat du tirage sous plusieurs formes différentes : un tirage global contenant toutes les informations (que vous pourrez parcourir à l'aide d'un tableur en vous servant de la première ligne comme filtre, par exemple), mais aussi les tirages par classe/prof ou par équipes, ce qui peut faciliter l'impression des résultats.
+**Impact :** Utilisé pendant 2 ans par 3 enseignants, ~100 tirages effectués.
 
-Notez bien que chaque nouveau tirage écrasera le tirage précédent, soyez donc vigilants !
+## 🛠️ Stack technique
 
---------------------
+- **Python 3.x**
+- **Pandas** (manipulation de données)
+- **XlsxWriter** (export Excel formaté avec couleurs) - *branche `Pandas-version`*
+- **CSV natif** - *branche `main`*
 
-**Optionnel : choisir soi-même le nom des équipes.**
+## 📊 Fonctionnalités clés
 
-Par défaut, le script génère des noms d'équipes basées sur des couleurs (ce qui permet d'attribuer des chasubles correspondantes aux élèves), mais vous pouvez très bien imaginer autre chose (dans le cadre d'un tournoi par exemple).
+✅ Lecture fichier CSV (nom, prénom, genre, classe)  
+✅ Algorithme de répartition aléatoire avec contrainte de parité  
+✅ Export multi-formats (global, par classe, par équipe)  
+✅ Personnalisation des noms d'équipes  
+✅ Code couleur par équipe (version Pandas)  
 
-Une fois le premier tirage effectué, un dossier "noms_equipes" apparaîtra dans le répertoire du script, qui contient un fichier csv contenant les noms des équipes.
-Vous pouvez changer l'ordre d'attribution des couleurs (par exemple, si vous générez 4 équipes, seules les 4 premières couleurs du fichier seront attribuées, ce qui ne correspond peut-être pas à votre matériel), ou bien changer complètement les noms des équipes pour les tirages ultérieurs.
+## 💡 Apprentissage personnel
+
+Premier projet Python développé en autonomie (sans LLM). M'a permis de découvrir :
+- La manipulation de DataFrames avec Pandas
+- L'importance de l'UX pour des utilisateurs non-techniques
+- Le plaisir de résoudre des problèmes opérationnels par le code
+
+**Ce projet est à l'origine de ma reconversion vers la Data.**
+
+---
+
+## 📖 Documentation utilisateur
