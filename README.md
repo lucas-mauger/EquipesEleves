@@ -36,6 +36,7 @@ Dupont;Marie;F;CM1
 Martin;Lucas;G;CM2
 ...
 ```
+💡Privilégiez l'utilisation d'un tableur, veillez simplement à bien **enregistrer au format csv** *(⚠️ pas xlsx/ods !)*
 
 **Format :**
 - Séparateur : `;` (point-virgule)
